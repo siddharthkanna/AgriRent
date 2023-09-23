@@ -1,2 +1,2 @@
 # AgriRent
-Farming Equipment Rental Applications
+Farming Equipment Rental Application

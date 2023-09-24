@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../theme/palette.dart';
 
 class OnboardingScreen extends StatelessWidget {
   @override
@@ -13,7 +14,7 @@ class OnboardingScreen extends StatelessWidget {
             child: const Text(
               'AgriRent',
               style: TextStyle(
-                fontSize: 42.0,
+                fontSize: 52.0,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -23,9 +24,9 @@ class OnboardingScreen extends StatelessWidget {
           Container(
             alignment: Alignment.center,
             child: Image.asset(
-              'assets/farmer_onboarding.png',
-              width: 200.0,
-              height: 200.0,
+              'assets/farmer_onboarding.jpg',
+              width: 350.0,
+              height: 350.0,
             ),
           ),
           const SizedBox(height: 30.0),
@@ -33,7 +34,7 @@ class OnboardingScreen extends StatelessWidget {
           Container(
             alignment: Alignment.bottomCenter,
             child: Container(
-              width: 250, // Make the button take the full width
+              width: 300,
               margin: const EdgeInsets.symmetric(horizontal: 20.0),
               child: ElevatedButton(
                 onPressed: () {
@@ -41,12 +42,15 @@ class OnboardingScreen extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(16.0),
-                  backgroundColor: Colors.blue, // Button background color
+                  backgroundColor: Palette.red ,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                 ),
-                child: const Text('Sign In with Google'),
+                child: const Text(
+                  'Get Started',
+                  style: TextStyle(fontSize: 18,fontWeight: FontWeight.w600),
+                ),
               ),
             ),
           )

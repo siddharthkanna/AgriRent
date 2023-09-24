@@ -1,3 +1,4 @@
+import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
 import './screens/onboarding.dart';
 
@@ -9,8 +10,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(fontFamily: 'poppins'),
-      home: OnboardingScreen(), 
+      theme: ThemeData(
+          fontFamily: 'poppins', scaffoldBackgroundColor: Palette.white),
+      home: OnboardingScreen(),
     );
   }
 }

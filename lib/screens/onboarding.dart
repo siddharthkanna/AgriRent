@@ -1,3 +1,4 @@
+import 'package:agrirent/screens/auth.dart';
 import 'package:flutter/material.dart';
 import '../theme/palette.dart';
 
@@ -38,18 +39,22 @@ class OnboardingScreen extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  // Add your Sign-In with Google logic here
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => SignUpScreen(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.all(16.0),
-                  backgroundColor: Palette.red ,
+                  backgroundColor: Palette.red,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
                   ),
                 ),
                 child: const Text(
                   'Get Started',
-                  style: TextStyle(fontSize: 18,fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

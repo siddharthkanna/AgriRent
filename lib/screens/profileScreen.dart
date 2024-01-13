@@ -1,9 +1,24 @@
+// ignore_for_file: use_build_context_synchronously
+import 'package:agrirent/providers/auth_provider.dart';
+import 'package:agrirent/screens/auth.dart';
 import 'package:agrirent/theme/palette.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
+    final authNotifier = ref.read(authProvider);
+    final User? user = authNotifier.user;
+    String dp = user?.photoURL ?? '';
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -29,7 +44,7 @@ class ProfileScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 60.0),
-                profilePicture(),
+                profilePicture(dp),
                 const SizedBox(height: 20.0),
                 options(),
                 const SizedBox(height: 20.0),
@@ -42,12 +57,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget profilePicture() {
-    return const CircleAvatar(
+  Widget profilePicture(String dp) {
+    return CircleAvatar(
       radius: 50.0,
-      backgroundImage: NetworkImage(
-        'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-      ),
+      backgroundImage: NetworkImage(dp),
     );
   }
 
@@ -96,13 +109,22 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.0),
       ),
       child: TextButton(
-        onPressed: () {
-          // Handle sign-out action
+        onPressed: () async {
+          final authNotifier = ref.read(authProvider);
+          await authNotifier.signOut();
+          // Navigate to SignUpScreen on successful sign-out
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SignUpScreen()),
+          );
         },
         child: const Text(
           'Sign Out',
           style: TextStyle(
-              color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
       ),
     );

@@ -37,6 +37,13 @@ dependencies:
   cupertino_icons: ^1.0.2
   awesome_bottom_bar: ^1.2.4
   image_picker: ^1.0.5
+  supabase_flutter: ^2.0.2
+  riverpod: ^2.4.9
+  flutter_riverpod: ^2.4.9
+  google_sign_in: ^6.2.1
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.16.0
+  dio: ^5.4.0
 
 dev_dependencies:
   flutter_test:

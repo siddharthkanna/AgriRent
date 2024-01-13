@@ -1,81 +1,64 @@
-import 'package:flutter/material.dart';
+import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/screens/pageview.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends ConsumerWidget {
+  const SignUpScreen({super.key});
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.read(authProvider);
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Sign Up'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // Your app logo or image here
-            // Image.asset('assets/app_logo.png', height: 100, width: 100),
-
-            // Sign Up with Phone Number button
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to phone number sign-up screen
-                Navigator.pushNamed(context, '/phone_signup');
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(16.0),
-                backgroundColor: Colors.blue, // Button background color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+      backgroundColor: Colors.indigo[50],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Welcome to My App',
+                style: TextStyle(
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.indigo[900],
                 ),
               ),
-              child: Text(
-                'Sign Up with Phone Number',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-
-            SizedBox(height: 20), // Spacer
-
-            // OR Text
-            Text(
-              'OR',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
-            ),
-
-            SizedBox(height: 20), // Spacer
-
-            // Sign Up with Google button
-            ElevatedButton.icon(
-              onPressed: () {
-                // Implement Google Sign-In logic here
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const PageViewScreen(),
+              const SizedBox(height: 40),
+              TextButton(
+                style: TextButton.styleFrom(
+                  primary: Colors.white,
+                  backgroundColor: Colors.indigo[900],
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.all(16.0),
-                primary: Colors.red, // Button background color
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
                 ),
+                onPressed: () async {
+                  try {
+                    await auth.signInWithGoogle(context);
+
+                    // Print user email after logging in
+                    print("User email: ${auth.user?.email}");
+
+                    // Navigate to HomeScreen on successful login
+                    // ignore: use_build_context_synchronously
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const PageViewScreen()),
+                    );
+                  } catch (e) {
+                    // Handle errors
+                    print("Error during Google sign-in: $e");
+                  }
+                },
+                child: Text('Sign in with Google'),
               ),
-              icon: Icon(Icons.login), // Add Google icon
-              label: Text(
-                'Sign Up with Google',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -14,11 +14,12 @@ class _PostScreenState extends State<PostScreen> {
 
   final TextEditingController _equipmentNameController =
       TextEditingController();
-  final TextEditingController _equipmentModelController =
+  final TextEditingController _equipmentCategoryController =
       TextEditingController();
   final TextEditingController _equipmentDescriptionController =
       TextEditingController();
   final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,8 @@ class _PostScreenState extends State<PostScreen> {
                   const SizedBox(height: 20.0),
                   _buildTextField("Equipment Name", _equipmentNameController),
                   const SizedBox(height: 10.0),
-                  _buildTextField("Equipment Model", _equipmentModelController),
+                  _buildTextField(
+                      "Equipment Category", _equipmentCategoryController),
                   const SizedBox(height: 10.0),
                   _buildTextField(
                     "Equipment Description",
@@ -59,6 +61,8 @@ class _PostScreenState extends State<PostScreen> {
                   ),
                   const SizedBox(height: 10.0),
                   _buildTextField("Price", _priceController),
+                  const SizedBox(height: 10.0),
+                  _buildTextField("Location", _locationController),
                   const SizedBox(height: 10.0),
                   _buildPostButton(),
                   const SizedBox(height: 100.0),
@@ -116,15 +120,15 @@ class _PostScreenState extends State<PostScreen> {
                 padding: const EdgeInsets.symmetric(
                   vertical: 12.0,
                   horizontal: 24.0,
-                ), // Add padding around the button
-                minimumSize: Size(170, 0), // Increase button width
+                ),
+                minimumSize: const Size(160, 0),
               ),
               child: const Text(
                 'Take Photo',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
-            const SizedBox(width: 10.0), // Add gap between buttons
+            const SizedBox(width: 10.0),
             ElevatedButton(
               onPressed: () {
                 _pickImageFromGallery();
@@ -132,21 +136,18 @@ class _PostScreenState extends State<PostScreen> {
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
-                  side:
-                      const BorderSide(color: Colors.black), // Add border line
+                  side: const BorderSide(color: Colors.black),
                 ),
-                backgroundColor: Colors.white, // Set background color to white
+                backgroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(
                   vertical: 12.0,
                   horizontal: 24.0,
-                ), // Add padding around the button
-                minimumSize: const Size(170, 0), // Increase button width
+                ),
+                minimumSize: const Size(170, 0),
               ),
               child: const Text(
                 'Browse gallery',
-                style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black), // Set text color to black
+                style: TextStyle(fontSize: 16, color: Colors.black),
               ),
             ),
           ],
@@ -192,15 +193,15 @@ class _PostScreenState extends State<PostScreen> {
           const SizedBox(height: 8.0),
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey[200], // Grey background color
-              borderRadius: BorderRadius.circular(12.0), // Rounded corners
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12.0),
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: TextField(
                 controller: controller,
                 decoration: const InputDecoration(
-                  border: InputBorder.none, // No visible border
+                  border: InputBorder.none,
                 ),
               ),
             ),
@@ -224,7 +225,8 @@ class _PostScreenState extends State<PostScreen> {
       ),
       child: const Text(
         'Post',
-        style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+        style: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
       ),
     );
   }

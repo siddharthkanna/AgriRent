@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "317799459776",
+    "project_id": "agrirent-5e481",
+    "storage_bucket": "agrirent-5e481.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317799459776:android:9d90eaebb4a25cf72c7625",
+        "android_client_info": {
+          "package_name": "com.example.agrirent"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317799459776-n7s2ivno8tnvjscdssj76umebrn4o25d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkXNcJtBSYaYMiPc5PeREvxb2cpTlR5Dg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317799459776-n7s2ivno8tnvjscdssj76umebrn4o25d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "317799459776-5hrikcpdhvu0b40karnu3a13cenroukr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.agrirent"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

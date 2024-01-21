@@ -2,7 +2,7 @@ import 'package:agrirent/screens/chatScreen.dart';
 import 'package:agrirent/screens/homescreen.dart';
 import 'package:agrirent/components/navbar.dart';
 import 'package:agrirent/screens/marketScreen.dart';
-import 'package:agrirent/screens/postScreen.dart';
+import 'package:agrirent/screens/postScreen/postScreen.dart';
 import 'package:agrirent/screens/profileScreen.dart';
 import 'package:flutter/material.dart';
 

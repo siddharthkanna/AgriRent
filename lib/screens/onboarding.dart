@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/palette.dart';
 
 class OnboardingScreen extends StatelessWidget {
+  const OnboardingScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,8 +42,18 @@ class OnboardingScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => SignUpScreen(),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          SignUpScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) =>
+                              SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
                     ),
                   );
                 },
@@ -54,7 +66,11 @@ class OnboardingScreen extends StatelessWidget {
                 ),
                 child: const Text(
                   'Get Started',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

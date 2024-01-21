@@ -1,6 +1,9 @@
+import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/components/card.dart';
 import 'package:agrirent/components/category_card.dart';
+import 'package:agrirent/constants/skeletonLoading.dart';
 import 'package:agrirent/providers/auth_provider.dart';
+import 'package:agrirent/models/equipment.model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +16,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  late Future<List<Equipment>> equipmentData;
+
+  @override
+  void initState() {
+    super.initState();
+    equipmentData = EquipmentApi.getAllEquipmentData();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authNotifier = ref.read(authProvider);
@@ -102,34 +113,33 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    height: 150,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        EquipmentCard(
-                          name: 'Equipment 1',
-                          rating: '4.5',
-                          imageUrl:
-                              'https://www.rushlane.com/wp-content/uploads/2021/03/tractor-sales-feb-2021-fada.jpg',
-                        ),
-                        const SizedBox(width: 5),
-                        EquipmentCard(
-                          name: 'Equipment 2',
-                          rating: '4.2',
-                          imageUrl:
-                              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMa5H6ze7MVFPJjbOutY4K0TyQh-dDeLzZ3Q&usqp=CAU',
-                        ),
-                        const SizedBox(width: 5),
-                        EquipmentCard(
-                          name: 'Equipment 3',
-                          rating: '4.8',
-                          imageUrl:
-                              'https://www.cropfertilityservices.com/wp-content/uploads/2021/08/Hatzenbichler-Tine-Weeder-2.jpeg',
-                        ),
-                        const SizedBox(width: 20),
-                      ],
-                    ),
+                  FutureBuilder<List<Equipment>>(
+                    future: equipmentData,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return SkeletonLoading(itemCount: 3);
+                      } else if (snapshot.hasError || !snapshot.hasData) {
+                        return Text('Error loading equipment data');
+                      } else {
+                        List<Equipment> equipmentList = snapshot.data!;
+                        return SizedBox(
+                          height: 150,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: equipmentList.length,
+                            itemBuilder: (context, index) {
+                              final equipment = equipmentList[index];
+                              return EquipmentCard(
+                                name: equipment.name,
+                                rating:
+                                    '4.5', // Replace with actual rating from equipment data
+                                imageUrl: equipment.images?.first ?? '',
+                              );
+                            },
+                          ),
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 20),
                   const Text(

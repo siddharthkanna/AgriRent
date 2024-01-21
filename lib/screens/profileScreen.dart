@@ -20,41 +20,42 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final User? user = authNotifier.user;
     String dp = user?.photoURL ?? '';
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.only(left: 6, top: 6),
-          child: Text(
-            'Your Profile',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: const Padding(
+            padding: EdgeInsets.only(left: 6, top: 6),
+            child: Text(
+              'Your Profile',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
           ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
               children: [
-                const SizedBox(height: 60.0),
-                profilePicture(dp),
-                const SizedBox(height: 20.0),
-                options(),
-                const SizedBox(height: 20.0),
-                signOutButton(),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 60.0),
+                    profilePicture(dp),
+                    const SizedBox(height: 20.0),
+                    options(),
+                    const SizedBox(height: 20.0),
+                    signOutButton(),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   Widget profilePicture(String dp) {

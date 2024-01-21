@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../models/user.model.dart' as UserModel;
 
 final authProvider = Provider((ref) => AuthNotifier());
 
@@ -10,6 +11,17 @@ class AuthNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? get user => _auth.currentUser;
+
+  UserModel.User? get userDetails {
+    if (user != null) {
+      return UserModel.User(
+        displayName: user!.displayName ?? "",
+        email: user!.email ?? "",
+        googleId: user!.uid,
+      );
+    }
+    return null;
+  }
 
   Future<void> signInWithGoogle(BuildContext context) async {
     try {

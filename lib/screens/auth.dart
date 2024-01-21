@@ -1,5 +1,5 @@
+import 'package:agrirent/api/user_api.dart';
 import 'package:agrirent/providers/auth_provider.dart';
-import 'package:agrirent/screens/pageview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -29,7 +29,7 @@ class SignUpScreen extends ConsumerWidget {
               const SizedBox(height: 40),
               TextButton(
                 style: TextButton.styleFrom(
-                  primary: Colors.white,
+                  foregroundColor: Colors.white,
                   backgroundColor: Colors.indigo[900],
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
@@ -37,25 +37,9 @@ class SignUpScreen extends ConsumerWidget {
                   ),
                 ),
                 onPressed: () async {
-                  try {
-                    await auth.signInWithGoogle(context);
-
-                    // Print user email after logging in
-                    print("User email: ${auth.user?.email}");
-
-                    // Navigate to HomeScreen on successful login
-                    // ignore: use_build_context_synchronously
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const PageViewScreen()),
-                    );
-                  } catch (e) {
-                    // Handle errors
-                    print("Error during Google sign-in: $e");
-                  }
+                  await UserApi().signIn(context, auth);
                 },
-                child: Text('Sign in with Google'),
+                child: const Text('Sign in with Google'),
               ),
             ],
           ),

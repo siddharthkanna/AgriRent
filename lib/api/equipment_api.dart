@@ -43,7 +43,7 @@ class EquipmentApi {
     } catch (error) {
       // Handle Dio errors or other exceptions
       print('Error getting equipment data: $error');
-      throw error; // Rethrow the error to be handled by the caller
+      rethrow;
     }
   }
 }

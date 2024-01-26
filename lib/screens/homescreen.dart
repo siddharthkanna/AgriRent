@@ -2,8 +2,11 @@ import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/components/card.dart';
 import 'package:agrirent/components/category_card.dart';
 import 'package:agrirent/constants/skeletonLoading.dart';
+import 'package:agrirent/models/EquipmentCategory.model.dart';
 import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/models/equipment.model.dart';
+import 'package:agrirent/screens/search.dart';
+import 'package:animations/animations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -64,40 +67,45 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  color: Colors.grey[200],
-                  border: Border.all(
-                    color: Colors.black12,
-                    width: 0.5,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.search),
-                      onPressed: () {
-                        // Implement search functionality here
-                      },
-                    ),
-                    const Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search equipment',
-                          border: InputBorder.none,
+              child: OpenContainer(
+                  transitionDuration: const Duration(milliseconds: 500),
+                  openBuilder: (context, _) => const SearchScreen(),
+                  closedBuilder: (context, VoidCallback openContainer) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.grey[200],
+                        border: Border.all(
+                          color: Colors.black12,
+                          width: 0.5,
                         ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.filter_list),
-                      onPressed: () {
-                        // Implement filter functionality here
-                      },
-                    ),
-                  ],
-                ),
-              ),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.search),
+                            onPressed: openContainer,
+                          ),
+                          Expanded(
+                            child: TextField(
+                              enabled: false,
+                              onTap: openContainer,
+                              decoration: const InputDecoration(
+                                hintText: 'Search equipment',
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.filter_list),
+                            onPressed: () {
+                              // Implement filter functionality here
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
             ),
             const SizedBox(height: 10),
             Padding(
@@ -154,26 +162,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     height: 100,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      children: [
-                        EquipmentCategoryCard(
-                          title: 'Tractors',
-                          iconUrl:
-                              'https://cdn-icons-png.flaticon.com/512/6678/6678123.png',
-                        ),
-                        const SizedBox(width: 5),
-                        EquipmentCategoryCard(
-                          title: 'Harvesters',
-                          iconUrl:
-                              'https://cdn-icons-png.flaticon.com/512/9236/9236346.png',
-                        ),
-                        const SizedBox(width: 5),
-                        EquipmentCategoryCard(
-                          title: 'Plows',
-                          iconUrl:
-                              'https://cdn-icons-png.flaticon.com/512/6678/6678111.png',
-                        ),
-                        const SizedBox(width: 20),
-                      ],
+                      children: equipmentCategories.map((category) {
+                        return EquipmentCategoryCard(
+                          title: category.title,
+                          iconUrl: category.iconUrl,
+                        );
+                      }).toList(),
                     ),
                   ),
                 ],

@@ -1,5 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+
 final apiUrl = dotenv.env['apiUrl'];
 
 final userUrl = "$apiUrl/user";

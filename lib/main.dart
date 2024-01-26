@@ -3,6 +3,7 @@ import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import './screens/onboarding.dart';
 import './screens/pageview.dart';
@@ -10,6 +11,7 @@ import './screens/pageview.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load();
   runApp(
     ProviderScope(
       child: MyApp(),
@@ -26,6 +28,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'poppins',
         scaffoldBackgroundColor: Palette.white,
@@ -40,10 +43,7 @@ class _MyAppState extends ConsumerState<MyApp> {
 class AuthWrapper extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Check if the user is signed in
     final user = ref.watch(authProvider).user;
-
-    // Return either OnboardingScreen or PageViewScreen based on user authentication
-    return user != null ? const PageViewScreen() : OnboardingScreen();
+    return user != null ? const PageViewScreen() : const OnboardingScreen();
   }
 }

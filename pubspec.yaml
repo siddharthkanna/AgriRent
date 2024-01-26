@@ -46,6 +46,7 @@ dependencies:
   dio: ^5.4.0
   shimmer: ^3.0.0
   lottie: ^3.0.0
+  animations: ^2.0.11
   flutter_dotenv: ^5.1.0
 
 dev_dependencies:
@@ -71,6 +72,9 @@ flutter:
   uses-material-design: true
   assets: 
     - assets/
+    - assets/category/
+    - assets/category/bw/
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:

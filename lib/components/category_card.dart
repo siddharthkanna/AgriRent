@@ -21,13 +21,18 @@ class EquipmentCategoryCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image.network(
+            const SizedBox(
+              height: 5,
+            ),
+            Image.asset(
               iconUrl,
-              width: 60,
-              height: 60,
+              width: 55,
+              height: 55,
               fit: BoxFit.cover,
             ),
-            
+            const SizedBox(
+              height: 4,
+            ),
             Text(
               title,
               style: const TextStyle(

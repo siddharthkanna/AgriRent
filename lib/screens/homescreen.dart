@@ -1,11 +1,12 @@
 import 'package:agrirent/api/equipment_api.dart';
-import 'package:agrirent/components/card.dart';
+import 'package:agrirent/components/EquipmentCard.dart';
 import 'package:agrirent/components/category_card.dart';
 import 'package:agrirent/constants/skeletonLoading.dart';
 import 'package:agrirent/models/EquipmentCategory.model.dart';
 import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/search.dart';
+import 'package:agrirent/theme/palette.dart';
 import 'package:animations/animations.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: OpenContainer(
+                closedElevation: 0,
+                closedColor: Palette.white,
                   transitionDuration: const Duration(milliseconds: 500),
                   openBuilder: (context, _) => const SearchScreen(),
                   closedBuilder: (context, VoidCallback openContainer) {
@@ -125,9 +128,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     future: equipmentData,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SkeletonLoading(itemCount: 3);
+                        return const SkeletonLoading(itemCount: 3);
                       } else if (snapshot.hasError || !snapshot.hasData) {
-                        return Text('Error loading equipment data');
+                        return const Text('Error loading equipment data');
                       } else {
                         List<Equipment> equipmentList = snapshot.data!;
                         return SizedBox(
@@ -138,10 +141,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             itemBuilder: (context, index) {
                               final equipment = equipmentList[index];
                               return EquipmentCard(
-                                name: equipment.name,
-                                rating:
-                                    '4.5', // Replace with actual rating from equipment data
-                                imageUrl: equipment.images?.first ?? '',
+                                equipment: equipment,
                               );
                             },
                           ),

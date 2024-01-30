@@ -1,4 +1,4 @@
-import 'package:agrirent/screens/chatScreen.dart';
+import 'package:agrirent/screens/chat/InboxScreen.dart';
 import 'package:agrirent/screens/homescreen.dart';
 import 'package:agrirent/components/navbar.dart';
 import 'package:agrirent/screens/marketScreen.dart';

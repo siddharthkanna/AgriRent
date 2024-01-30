@@ -18,6 +18,7 @@ class SuccessScreen extends StatelessWidget {
               width: 300,
               height: 300,
               repeat: true,
+              frameRate: const FrameRate(60),
             ),
             const SizedBox(height: 20.0),
             const Text(

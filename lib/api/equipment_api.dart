@@ -11,7 +11,7 @@ class EquipmentApi {
     try {
       equipment.images = imageUrls;
       String jsonData = json.encode(equipment.toJson());
-      await dio.post(equipmentUrl, data: jsonData);
+      await dio.post(addEquipmentUrl, data: jsonData);
 
       Navigator.pushReplacement(
         context,

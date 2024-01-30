@@ -79,7 +79,7 @@ List<MarketCategory> marketCategories = [
   ),
   MarketCategory(
     name: 'Sprinkler',
-    iconUrl: 'assets/category/bw/sprinklerbw.png',
+    iconUrl: 'assets/category/bw/sprinklerbw.jpg',
   ),
   MarketCategory(
     name: 'Wheel Barrow',

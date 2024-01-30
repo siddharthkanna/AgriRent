@@ -1,6 +1,6 @@
 import 'package:agrirent/api/equipment_api.dart';
+import 'package:agrirent/components/EquipmentListCard.dart';
 import 'package:agrirent/models/equipment.model.dart';
-import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -12,16 +12,20 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final _searchTextController = TextEditingController();
-
-  late Future<List<Equipment>> _equipmentData;
   List<Equipment> _searchResults = [];
+  bool _isTyping = true;
 
   @override
   void initState() {
     super.initState();
     _searchTextController.addListener(() {
+      setState(() {
+        _isTyping = _searchTextController.text.isNotEmpty;
+      });
       _updateSearchResults(_searchTextController.text);
     });
+    // Fetch initial search results when the screen is opened
+    _updateSearchResults('');
   }
 
   Future<void> _updateSearchResults(String query) async {
@@ -51,98 +55,60 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: TextField(
-          controller: _searchTextController,
-          decoration: const InputDecoration(
-            hintText: 'Search equipment',
-            border: InputBorder.none,
-            hintStyle: TextStyle(color: Colors.grey),
+    return SafeArea(
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(60.0),
+          child: AppBar(
+           
+            iconTheme: const IconThemeData(color: Colors.black),
+            elevation: 0,
+            leadingWidth: 40,
+            title: TextField(
+              controller: _searchTextController,
+              decoration: const InputDecoration(
+                hintText: 'Search for equipment',
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Colors.black,
+                  size: 24,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                  borderSide: BorderSide(color: Colors.black),
+                ),
+                hintStyle: TextStyle(
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+              ),
+            ),
           ),
         ),
+        body: _searchResults.isEmpty
+            ? Center(
+                child: Text(_isTyping
+                    ? 'No search results found.'
+                    : 'Search for equipment'),
+              )
+            : ListView.separated(
+                itemCount: _searchResults.length,
+                itemBuilder: (context, index) {
+                  final Equipment equipment = _searchResults[index];
+                  return EquipmentListCard(equipment: equipment);
+                },
+                separatorBuilder: (context, index) {
+                  return const Divider(
+                    height: 0.5,
+                    color: Colors.black26,
+                    indent: 20,
+                    endIndent: 20,
+                  );
+                },
+              ),
       ),
-      body: _searchResults.isEmpty
-          ? const Center(
-              child: Text('No search results found.'),
-            )
-          : ListView.builder(
-              itemCount: _searchResults.length,
-              itemBuilder: (context, index) {
-                final Equipment equipment = _searchResults[index];
-                return Container(
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.white,
-                  ),
-                  child: Container(
-                    padding:const EdgeInsets.all(16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 150,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            image: DecorationImage(
-                              image:
-                                  NetworkImage(equipment.images?.first ?? ''),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 30),
-                        // Right Half: Details
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                equipment.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                equipment.category,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Price: \$${equipment.rentalPrice}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Palette.red,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Location: ${equipment.location}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
     );
   }
 }

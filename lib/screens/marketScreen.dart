@@ -1,5 +1,6 @@
 import 'package:agrirent/models/EquipmentCategory.model.dart';
 import 'package:agrirent/screens/search.dart';
+import 'package:agrirent/theme/palette.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 
@@ -67,6 +68,7 @@ class MarketScreen extends StatelessWidget {
                       );
                     },
                     closedElevation: 0,
+                    closedColor: Palette.white,
                     openElevation: 4,
                     transitionDuration: const Duration(milliseconds: 500),
                     tappable: true,
@@ -76,6 +78,7 @@ class MarketScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20.0), // Spacer
                   _buildCategoriesGrid(constraints.maxWidth),
+                  const SizedBox(height: 50.0),
                 ],
               );
             },
@@ -134,7 +137,6 @@ class MarketScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.black),
             ),
-            
           ],
         ),
       ),

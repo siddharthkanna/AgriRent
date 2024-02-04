@@ -1,7 +1,7 @@
 import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/components/EquipmentCard.dart';
 import 'package:agrirent/components/category_card.dart';
-import 'package:agrirent/constants/skeletonLoading.dart';
+import 'package:agrirent/constants/cardLoading.dart';
 import 'package:agrirent/models/EquipmentCategory.model.dart';
 import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/models/equipment.model.dart';
@@ -34,6 +34,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final User? user = authNotifier.user;
     String dp = user?.photoURL ?? '';
     String name = user?.displayName ?? '';
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -57,7 +58,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     ),
                   ),
                   Text(
-                    name,
+                    name.split(" ")[0],
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
@@ -69,8 +70,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: OpenContainer(
-                closedElevation: 0,
-                closedColor: Palette.white,
+                  closedElevation: 0,
+                  closedColor: Palette.white,
                   transitionDuration: const Duration(milliseconds: 500),
                   openBuilder: (context, _) => const SearchScreen(),
                   closedBuilder: (context, VoidCallback openContainer) {

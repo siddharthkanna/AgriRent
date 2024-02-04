@@ -3,6 +3,7 @@ import 'package:agrirent/config/dio.dart';
 import 'package:agrirent/config/url.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/success.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class EquipmentApi {
@@ -31,8 +32,13 @@ class EquipmentApi {
 
       if (response.statusCode == 200) {
         List<dynamic> jsonData = response.data;
-        List<Equipment> equipmentList =
-            jsonData.map((json) => Equipment.fromJson(json)).toList();
+
+        final currentUserID = FirebaseAuth.instance.currentUser?.uid;
+
+        List<Equipment> equipmentList = jsonData
+            .map((json) => Equipment.fromJson(json))
+            .where((equipment) => equipment.ownerId != currentUserID)
+            .toList();
 
         return equipmentList;
       } else {

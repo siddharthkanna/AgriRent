@@ -1,4 +1,7 @@
+import 'package:agrirent/api/user_api.dart';
+import 'package:agrirent/config/chat/initiateChat.dart';
 import 'package:agrirent/models/equipment.model.dart';
+import 'package:agrirent/screens/chat/chatScreen.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
@@ -180,8 +183,31 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                   horizontal: 10,
                 ),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Implement chat functionality
+                  onPressed: () async {
+                    final ownerId = widget.equipment.ownerId;
+                    final chatId = await initiateChat(ownerId!);
+
+                    // Fetch user data for the owner
+                    final Map<String, dynamic> userData =
+                        await UserApi().getUserData(ownerId);
+
+                    // Check if user data is not null
+                    if (userData != null) {
+                      // Use null-aware operator to avoid a null exception
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatMessagesScreen(
+                            chatId: chatId,
+                            userPhotoUrl: userData['photoURL'] ?? '',
+                            userName: userData['displayName'] ?? '',
+                          ),
+                        ),
+                      );
+                    } else {
+                      // Handle the case where user data is null
+                      print('Error: User data is null');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black,

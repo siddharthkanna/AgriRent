@@ -1,6 +1,6 @@
-// category_card.dart
-
+import 'package:agrirent/screens/categoryList.dart';
 import 'package:flutter/material.dart';
+
 
 class EquipmentCategoryCard extends StatelessWidget {
   final String title;
@@ -10,37 +10,47 @@ class EquipmentCategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 100,
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(
-              height: 5,
-            ),
-            Image.asset(
-              iconUrl,
-              width: 55,
-              height: 55,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(
-              height: 4,
-            ),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EquipmentListScreen(categoryTitle: title),
+          ),
+        );
+      },
+      child: Container(
+        width: 100,
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        child: Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 5,
               ),
-            ),
-          ],
+              Image.asset(
+                iconUrl,
+                width: 55,
+                height: 55,
+                fit: BoxFit.cover,
+              ),
+              const SizedBox(
+                height: 4,
+              ),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

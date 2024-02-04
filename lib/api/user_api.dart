@@ -16,6 +16,8 @@ class UserApi {
           displayName: user.displayName ?? '',
           email: user.email ?? '',
           googleId: user.uid,
+          photoURL: user.photoURL ?? '',
+          mobileNumber: user.phoneNumber ?? '',
         );
         final userDataJson = userData.toJson();
         final response = await dio.post(
@@ -34,6 +36,23 @@ class UserApi {
       }
     } catch (e) {
       print("Error during Google sign-in: $e");
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserData(String userId) async {
+    try {
+      final response = await dio.get(
+        '$getUserDataUrl/$userId',
+      );
+
+      if (response.statusCode == 200) {
+        return Map<String, dynamic>.from(response.data);
+      } else {
+        throw Exception('Failed to load user data');
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+      throw Exception('Failed to load user data');
     }
   }
 }

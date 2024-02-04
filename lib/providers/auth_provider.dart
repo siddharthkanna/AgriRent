@@ -18,6 +18,8 @@ class AuthNotifier {
         displayName: user!.displayName ?? "",
         email: user!.email ?? "",
         googleId: user!.uid,
+        photoURL: user!.photoURL ?? "",
+        mobileNumber: user!.phoneNumber ?? "",
       );
     }
     return null;

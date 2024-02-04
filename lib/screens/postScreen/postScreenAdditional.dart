@@ -1,9 +1,12 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_build_context_synchronously
 import 'dart:io';
 import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/components/textField.dart';
 import 'package:agrirent/config/image_upload.dart';
+import 'package:agrirent/constants/loading.dart';
+import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
+import 'package:agrirent/screens/postScreen/success.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +33,14 @@ class _AdditionalDetailsScreenState
   DateTime? _endDate;
   final TextEditingController _featuresController = TextEditingController();
   final TextEditingController _conditionController = TextEditingController();
+
+  late Future<void> _postEquipmentFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _postEquipmentFuture = Future.value(); // Initialize with completed future
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +140,7 @@ class _AdditionalDetailsScreenState
   Widget postButton() {
     return ElevatedButton(
       onPressed: () {
-        // Implement post functionality here
+        // Trigger posting equipment details
         _postEquipment();
       },
       style: ElevatedButton.styleFrom(
@@ -151,7 +162,24 @@ class _AdditionalDetailsScreenState
   }
 
   Future<void> _postEquipment() async {
+    setState(() {
+      // Reset the error if any, and set the loading state
+      _postEquipmentFuture = _postEquipmentInternal().whenComplete(
+          () => setState(() {})); // Update the UI after completion
+    });
+  }
+
+  Future<void> _postEquipmentInternal() async {
     try {
+      // Show loading overlay
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Loading();
+        },
+      );
+
       List<String> imageUrls =
           await ImageUploadFirebase.uploadImages(widget.imageFiles);
 
@@ -177,8 +205,13 @@ class _AdditionalDetailsScreenState
       );
 
       await EquipmentApi.postEquipmentData(imageUrls, equipment, context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const SuccessScreen()),
+      );
     } catch (error) {
-      print("Error posting equipment: $error");
+      CustomSnackBar.showError(context, 'Error posting Equipment!');
+      throw error;
     }
   }
 

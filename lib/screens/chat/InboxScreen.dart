@@ -1,9 +1,7 @@
 import 'package:agrirent/api/user_api.dart';
+import 'package:agrirent/components/chat/chatTile.dart';
 import 'package:agrirent/config/chat/message_notifier.dart';
 import 'package:agrirent/constants/chatLoading.dart';
-import 'package:agrirent/screens/chat/chatScreen.dart';
-import 'package:agrirent/theme/palette.dart';
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -158,53 +156,6 @@ class _ChatScreenState extends State<ChatScreen> {
             },
           );
         },
-      ),
-    );
-  }
-}
-
-class ChatTile extends StatelessWidget {
-  final String chatId;
-  final String name;
-  final String lastMessage;
-  final String userPhotoUrl;
-
-  const ChatTile({
-    required this.chatId,
-    required this.name,
-    required this.lastMessage,
-    required this.userPhotoUrl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return OpenContainer(
-      closedColor: Palette.white,
-      closedElevation: 0,
-      transitionType: ContainerTransitionType.fadeThrough,
-      openBuilder: (context, action) => ChatMessagesScreen(
-        chatId: chatId,
-        userName: name,
-        userPhotoUrl: userPhotoUrl,
-      ),
-      closedBuilder: (context, action) => ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-        leading: CircleAvatar(
-          backgroundImage: NetworkImage(userPhotoUrl),
-          radius: 23.0,
-        ),
-        title: Text(
-          name,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Text(
-          lastMessage,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
       ),
     );
   }

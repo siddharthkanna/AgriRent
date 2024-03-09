@@ -17,7 +17,7 @@ class EquipmentApi {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => SuccessScreen(),
+          builder: (context) => const SuccessScreen(),
         ),
       );
     } catch (error) {
@@ -50,6 +50,56 @@ class EquipmentApi {
       // Handle Dio errors or other exceptions
       print('Error getting equipment data: $error');
       rethrow;
+    }
+  }
+
+  static Future<List<Equipment>> fetchRentalHistory(String userId) async {
+    try {
+      final response = await dio.get(rentalHistoryUrl + userId);
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonData = response.data;
+
+        List<Equipment> rentalHistoryList =
+            jsonData.map((json) => Equipment.fromJson(json)).toList();
+
+        return rentalHistoryList;
+      } else {
+        // Handle error
+        throw Exception(
+            'Failed to load rental history data. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle Dio errors or other exceptions
+      print('Error getting rental history data: $error');
+      rethrow;
+    }
+  }
+
+  static Future<void> rentEquipment(
+      String equipmentId, String renterId, BuildContext context) async {
+    try {
+      final Map<String, dynamic> requestData = {
+        'equipmentId': equipmentId,
+        'renterId': renterId,
+      };
+
+      final response = await dio.post(rentEquipmentUrl, data: requestData);
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SuccessScreen(),
+          ),
+        );
+      } else {
+        throw Exception(
+            'Failed to rent equipment. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error renting equipment: $error');
+      // Handle error as needed
     }
   }
 }

@@ -1,9 +1,12 @@
+import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/api/user_api.dart';
 import 'package:agrirent/config/chat/initiateChat.dart';
+import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/chat/chatScreen.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -109,23 +112,6 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                         color: Colors.grey[600],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Price: \$${widget.equipment.rentalPrice}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.red,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Location: ${widget.equipment.location}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[600],
-                      ),
-                    ),
                     const SizedBox(height: 16),
                     const Text(
                       'Description:',
@@ -137,6 +123,23 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                     const SizedBox(height: 8),
                     Text(
                       widget.equipment.description,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Price: \Rs.${widget.equipment.rentalPrice}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Location: ${widget.equipment.location}',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[600],
@@ -205,8 +208,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                         ),
                       );
                     } else {
-                      // Handle the case where user data is null
-                      print('Error: User data is null');
+                      CustomSnackBar.showError(
+                          context, 'Failed to initiate chat');
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -232,7 +235,10 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Implement buy now functionality
+                    String? equipmentId = widget.equipment.id;
+                    String renterId =
+                        FirebaseAuth.instance.currentUser?.uid ?? '';
+                    EquipmentApi.rentEquipment(equipmentId!, renterId, context);
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
@@ -243,7 +249,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                     minimumSize: const Size(double.infinity, 50),
                   ),
                   child: const Text(
-                    'Buy Now',
+                    'Rent Now',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

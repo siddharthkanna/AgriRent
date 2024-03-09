@@ -55,7 +55,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
         ),
         backgroundColor: Palette.grey,
         elevation: 1,
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Column(
         children: [
@@ -75,7 +75,8 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
                   var messageText = message['text'];
                   var messageSender = message['sender'];
 
-                  var messageWidget = MessageBubble(
+                  var messageWidget = messageBubble(
+                    timestamp: message['timestamp'],
                     sender: messageSender,
                     text: messageText,
                     isCurrentUser: messageSender == currentUserId,
@@ -90,46 +91,78 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
               },
             ),
           ),
-          _buildMessageInput(),
+          messageInput(),
         ],
       ),
     );
   }
 
-  Widget MessageBubble({
+  Widget messageBubble({
     required String sender,
     required String text,
     required bool isCurrentUser,
+    required Timestamp timestamp,
   }) {
+    final messageTime =
+        DateTime.fromMillisecondsSinceEpoch(timestamp.millisecondsSinceEpoch);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      child: Align(
-        alignment: isCurrentUser ? Alignment.topRight : Alignment.topLeft,
-        child: Container(
-          padding: const EdgeInsets.all(12.0),
-          decoration: BoxDecoration(
-            color: isCurrentUser ? Palette.red : Colors.grey[300],
-            borderRadius: BorderRadius.only(
-              topRight:
-                  isCurrentUser ? Radius.circular(20.0) : Radius.circular(0.0),
-              topLeft:
-                  isCurrentUser ? Radius.circular(0.0) : Radius.circular(20.0),
-              bottomLeft: Radius.circular(20.0),
-              bottomRight: Radius.circular(20.0),
+      child: Column(
+        crossAxisAlignment:
+            isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12.0),
+            decoration: BoxDecoration(
+              color: isCurrentUser ? Palette.red : Colors.grey[300],
+              borderRadius: BorderRadius.only(
+                topRight: isCurrentUser
+                    ? Radius.circular(20.0)
+                    : Radius.circular(0.0),
+                topLeft: isCurrentUser
+                    ? Radius.circular(0.0)
+                    : Radius.circular(20.0),
+                bottomLeft: Radius.circular(20.0),
+                bottomRight: Radius.circular(20.0),
+              ),
+            ),
+            child: Text(
+              text,
+              style: TextStyle(
+                color: isCurrentUser ? Colors.white : Colors.black,
+              ),
             ),
           ),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: isCurrentUser ? Colors.white : Colors.black,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Text(
+              _formatTime(messageTime),
+              style: TextStyle(
+                fontSize: 12.0,
+                color: Colors.grey[600],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  Widget _buildMessageInput() {
+  String _formatTime(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+
+    if (difference.inDays > 0) {
+      return '${time.day}/${time.month}/${time.year}';
+    } else if (difference.inHours > 0) {
+      return '${time.hour}:${time.minute}';
+    } else {
+      return '${difference.inMinutes} min ago';
+    }
+  }
+
+  Widget messageInput() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(

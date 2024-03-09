@@ -31,15 +31,17 @@ class _AdditionalDetailsScreenState
     extends ConsumerState<AdditionalDetailsScreen> {
   DateTime? _startDate;
   DateTime? _endDate;
+
   final TextEditingController _featuresController = TextEditingController();
   final TextEditingController _conditionController = TextEditingController();
+  String? _selectedDeliveryMode;
 
   late Future<void> _postEquipmentFuture;
 
   @override
   void initState() {
     super.initState();
-    _postEquipmentFuture = Future.value(); // Initialize with completed future
+    _postEquipmentFuture = Future.value();
   }
 
   @override
@@ -58,20 +60,36 @@ class _AdditionalDetailsScreenState
         elevation: 0,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              WidgetUtils.textField('Features', _featuresController),
-              const SizedBox(height: 20.0),
-              WidgetUtils.textField('Condition', _conditionController),
-              const SizedBox(height: 20.0),
-              dateRangePicker('Availability Dates'),
-              Spacer(),
-              postButton(),
-            ],
-          ),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      WidgetUtils.textField('Features', _featuresController),
+                      const SizedBox(height: 20.0),
+                      WidgetUtils.textField('Condition', _conditionController),
+                      const SizedBox(height: 20.0),
+                      dateRangePicker('Availability Dates'),
+                      const SizedBox(height: 20.0),
+                      deliveryModeDropdown(),
+                      const SizedBox(height: 20.0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: postButton(),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -112,6 +130,49 @@ class _AdditionalDetailsScreenState
                 ],
               ),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget deliveryModeDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Delivery Mode',
+          style: const TextStyle(
+            fontSize: 14.0,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        DropdownButtonFormField<String>(
+          value: _selectedDeliveryMode ?? 'Renter Pickup',
+          items: ['Renter Pickup', 'Owner Delivery', 'Both']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            setState(() {
+              _selectedDeliveryMode = value!;
+            });
+          },
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey[200]!),
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+            filled: true,
+            fillColor: Colors.grey[200],
           ),
         ),
       ],
@@ -183,11 +244,9 @@ class _AdditionalDetailsScreenState
       List<String> imageUrls =
           await ImageUploadFirebase.uploadImages(widget.imageFiles);
 
-      // Retrieve the current user ID
       final userId = FirebaseAuth.instance.currentUser?.uid;
 
       if (userId == null) {
-        print("User not authenticated");
         return;
       }
 
@@ -202,6 +261,7 @@ class _AdditionalDetailsScreenState
         availabilityDates: _generateDateList(_startDate, _endDate),
         images: imageUrls,
         ownerId: userId,
+        deliveryMode: _selectedDeliveryMode ?? 'Renter Pickup',
       );
 
       await EquipmentApi.postEquipmentData(imageUrls, equipment, context);

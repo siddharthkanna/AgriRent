@@ -25,7 +25,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    equipmentData = EquipmentApi.getAllEquipmentData();
+    equipmentData = _fetchAvailableEquipment();
+  }
+
+  Future<List<Equipment>> _fetchAvailableEquipment() async {
+    try {
+      final List<Equipment> allEquipment =
+          await EquipmentApi.getAllEquipmentData();
+      final List<Equipment> availableEquipment =
+          allEquipment.where((equipment) => equipment.isAvailable).toList();
+      return availableEquipment;
+    } catch (error) {
+      print('Error fetching available equipment: $error');
+      throw error;
+    }
   }
 
   @override

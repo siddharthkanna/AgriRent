@@ -1,7 +1,6 @@
 import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/components/EquipmentListCard.dart';
 import 'package:agrirent/constants/cardListLoading.dart';
-import 'package:agrirent/constants/cardLoading.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +24,6 @@ class EquipmentListScreen extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<List<Equipment>>(
-        // Fetch all equipment data and filter it based on categoryTitle
         future: EquipmentApi.getAllEquipmentData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -35,7 +33,9 @@ class EquipmentListScreen extends StatelessWidget {
           } else {
             List<Equipment> allEquipment = snapshot.data!;
             List<Equipment> filteredEquipment = allEquipment
-                .where((equipment) => equipment.category == categoryTitle)
+                .where((equipment) =>
+                    equipment.category == categoryTitle &&
+                    equipment.isAvailable == true)
                 .toList();
 
             if (filteredEquipment.isEmpty) {

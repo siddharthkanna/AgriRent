@@ -11,6 +11,7 @@ class AuthNotifier {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? get user => _auth.currentUser;
+  String? get userId => user?.uid;
 
   UserModel.User? get userDetails {
     if (user != null) {

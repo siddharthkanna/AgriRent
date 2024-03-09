@@ -44,7 +44,7 @@ class OnboardingScreen extends StatelessWidget {
                   Navigator.of(context).push(
                     PageRouteBuilder(
                       pageBuilder: (context, animation, secondaryAnimation) =>
-                          SignUpScreen(),
+                          const SignUpScreen(),
                       transitionsBuilder:
                           (context, animation, secondaryAnimation, child) =>
                               SlideTransition(

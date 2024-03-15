@@ -10,4 +10,13 @@ class CustomSnackBar {
       ),
     );
   }
+
+  static void showSuccess(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.green[400],
+      ),
+    );
+  }
 }

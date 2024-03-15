@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:agrirent/config/chat/message_notifier.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

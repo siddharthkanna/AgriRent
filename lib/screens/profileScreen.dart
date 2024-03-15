@@ -1,3 +1,6 @@
+// ignore_for_file: prefer_const_constructors
+
+import 'package:agrirent/screens/LanguageSelection.dart';
 import 'package:flutter/material.dart';
 import 'package:agrirent/pages/profile/RentingHistory/RentalHistory.dart';
 import 'package:agrirent/pages/profile/PostingHistory/PostingHistory.dart';
@@ -36,6 +39,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () {
+              // _showLanguageDialog(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LanguageSelectionScreen()),
+              );
+            },
+            icon: Icon(Icons.language),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -72,7 +88,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       children: [
         _buildOption('Profile Settings'),
         _buildOption('Renting History'),
-        _buildOption('Posting History'), // Add Posting History option
+        _buildOption('Posting History'),
         _buildOption('Your Bookmarks'),
       ],
     );

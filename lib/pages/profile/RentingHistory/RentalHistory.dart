@@ -2,6 +2,7 @@
 
 import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/models/equipment.model.dart';
+import 'package:agrirent/pages/profile/RentingHistory/ProductDetail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:agrirent/providers/auth_provider.dart'; // Import your provider for authentication
@@ -98,40 +99,71 @@ class EquipmentHistoryItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            equipment.name,
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
+    String returnDate = equipment.availabilityDates!.isNotEmpty
+        ? equipment.availabilityDates!.last
+        : 'N/A';
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ProductInfoPageRent(
+              equipment: equipment,
             ),
           ),
-          SizedBox(height: 8.0),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text('Rented: ${equipment.rentedDate}'),
-          //     Text('Returned: ${equipment.returnDate}'),
-          //   ],
-          // ),
-          SizedBox(height: 8.0),
-          Text(
-            'Price: \$${equipment.rentalPrice}',
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-              color: Colors.green,
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Display the image
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Image.network(
+                equipment.images!.isNotEmpty
+                    ? equipment.images!.first
+                    : '', // Use first image if available
+                width: 100.0,
+                height: 100.0,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-        ],
+            SizedBox(width: 16.0),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    equipment.name,
+                    style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8.0),
+                  Text('Rented: ${equipment.availabilityDates!.first}'),
+                  SizedBox(height: 8.0),
+                  Text('Returned: $returnDate'),
+                  SizedBox(height: 8.0),
+                  Text(
+                    'Price: \$${equipment.rentalPrice}',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

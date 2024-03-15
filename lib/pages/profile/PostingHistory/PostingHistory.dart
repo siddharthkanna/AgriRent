@@ -69,12 +69,14 @@ class _PostingHistoryPageState extends ConsumerState<PostingHistoryPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ProductInfoPage(equipment: equipment),
+                        builder: (context) =>
+                            ProductInfoPagePost(equipment: equipment),
                       ),
                     );
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     child: Card(
                       elevation: 0,
                       color: Colors.white,
@@ -85,7 +87,8 @@ class _PostingHistoryPageState extends ConsumerState<PostingHistoryPage> {
                         contentPadding: const EdgeInsets.all(12),
                         leading: CircleAvatar(
                           radius: 32,
-                          backgroundImage: NetworkImage(equipment.images?.first ?? ''),
+                          backgroundImage:
+                              NetworkImage(equipment.images?.first ?? ''),
                         ),
                         title: Text(
                           equipment.name,

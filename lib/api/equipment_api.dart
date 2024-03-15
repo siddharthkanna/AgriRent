@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:agrirent/config/dio.dart';
 import 'package:agrirent/config/url.dart';
+import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/success.dart';
+import 'package:agrirent/screens/profileScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -99,6 +101,29 @@ class EquipmentApi {
       }
     } catch (error) {
       print('Error renting equipment: $error');
+      // Handle error as needed
+    }
+  }
+
+  static Future<void> deleteEquipment(
+      BuildContext context, String equipmentId) async {
+    try {
+      final response = await dio.delete('$deleteEquipmentUrl/$equipmentId');
+
+      if (response.statusCode == 200) {
+        CustomSnackBar.showError(context, 'Equipment deleted successfully!');
+        // Navigate to profile screen after deletion
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const ProfileScreen(),
+          ),
+        );
+      } else {
+        throw Exception(
+            'Failed to delete equipment. Status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error deleting equipment: $error');
       // Handle error as needed
     }
   }

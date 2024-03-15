@@ -1,19 +1,23 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print, library_private_types_in_public_api, sort_child_properties_last
 
+import 'package:agrirent/api/equipment_api.dart';
+import 'package:agrirent/constants/snackBar.dart';
+import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:agrirent/models/equipment.model.dart';
 
-class ProductInfoPage extends StatefulWidget {
+class ProductInfoPagePost extends StatefulWidget {
   final Equipment equipment;
 
-  const ProductInfoPage({Key? key, required this.equipment}) : super(key: key);
+  const ProductInfoPagePost({Key? key, required this.equipment})
+      : super(key: key);
 
   @override
   _ProductInfoPageState createState() => _ProductInfoPageState();
 }
 
-class _ProductInfoPageState extends State<ProductInfoPage> {
+class _ProductInfoPageState extends State<ProductInfoPagePost> {
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   late TextEditingController _categoryController;
@@ -84,6 +88,15 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
       widget.equipment.deliveryMode = editedDeliveryMode;
       _isEditing = false;
     });
+  }
+
+  void _deletePosting() async {
+    try {
+      await EquipmentApi.deleteEquipment(context, widget.equipment.id!);
+    } catch (e) {
+      CustomSnackBar.showError(context, 'Error Deleting the equipment!');
+      print('Error deleting posting: $e');
+    }
   }
 
   @override
@@ -255,6 +268,28 @@ class _ProductInfoPageState extends State<ProductInfoPage> {
                       onPressed: _saveChanges,
                       child: Text('Save'),
                     ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          onPressed: _deletePosting,
+                          child: Text(
+                            'Delete Posting',
+                            style: TextStyle(
+                                color: Palette.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Palette.red,
+                            padding: EdgeInsets.all(16.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                          )),
+                    ),
+                  ),
                 ],
               ),
             ),

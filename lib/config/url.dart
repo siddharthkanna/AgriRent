@@ -10,6 +10,7 @@ final getUserDataUrl = "$userUrl/getUser";
 
 //equipment
 final addEquipmentUrl = "$equipmentUrl/addEquipment";
+final deleteEquipmentUrl = "$equipmentUrl/deleteEquipment";
 final getEquipmentUrl = "$equipmentUrl/allEquipment";
 final postingHistoryUrl = "$equipmentUrl/postingHistory/";
 final rentalHistoryUrl = "$equipmentUrl/rentalHistory/";

@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 
 class EquipmentListScreen extends StatelessWidget {
   final String categoryTitle;
+  final String displayTitle;
 
-  const EquipmentListScreen({required this.categoryTitle, Key? key})
+  const EquipmentListScreen(
+      {required this.categoryTitle, required this.displayTitle, Key? key})
       : super(key: key);
 
   @override
@@ -18,7 +20,7 @@ class EquipmentListScreen extends StatelessWidget {
         iconTheme: const IconThemeData(color: Palette.white),
         backgroundColor: Palette.red,
         title: Text(
-          categoryTitle,
+          displayTitle,
           style: const TextStyle(
               color: Palette.white, fontWeight: FontWeight.bold),
         ),
@@ -42,7 +44,7 @@ class EquipmentListScreen extends StatelessWidget {
               return const Center(
                 child: Text(
                   'Oops!No equipment found in this category.',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.normal),
                 ),
               );
             }

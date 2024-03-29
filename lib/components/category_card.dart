@@ -1,12 +1,13 @@
 import 'package:agrirent/screens/categoryList.dart';
 import 'package:flutter/material.dart';
 
-
 class EquipmentCategoryCard extends StatelessWidget {
   final String title;
+  final String displayTitle;
   final String iconUrl;
 
-  EquipmentCategoryCard({required this.title, required this.iconUrl});
+  EquipmentCategoryCard(
+      {required this.title, required this.iconUrl, required this.displayTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,10 @@ class EquipmentCategoryCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => EquipmentListScreen(categoryTitle: title),
+            builder: (context) => EquipmentListScreen(
+              categoryTitle: title,
+              displayTitle: displayTitle,
+            ),
           ),
         );
       },
@@ -43,7 +47,7 @@ class EquipmentCategoryCard extends StatelessWidget {
                 height: 4,
               ),
               Text(
-                title,
+                displayTitle,
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,

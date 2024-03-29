@@ -5,6 +5,7 @@ import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/postScreenAdditional.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class PostScreen extends StatefulWidget {
   const PostScreen({Key? key}) : super(key: key);
@@ -24,14 +25,16 @@ class _PostScreenState extends State<PostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.only(left: 6, top: 6),
+        title:  Padding(
+          padding: const EdgeInsets.only(left: 6, top: 6),
           child: Text(
-            'Post Your Equipment',
-            style: TextStyle(
+            appLoc.postYourEquipment,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.black,
@@ -52,20 +55,24 @@ class _PostScreenState extends State<PostScreen> {
                   children: [
                     imagePicker(constraints.maxWidth),
                     const SizedBox(height: 20.0),
-                    WidgetUtils.textField('Name', _nameController),
+                    WidgetUtils.textField(appLoc.name, _nameController),
                     const SizedBox(height: 20.0),
-                    WidgetUtils.textField('Category', _categoryController),
-                    const SizedBox(height: 20.0),
-                    WidgetUtils.textField(
-                        'Description', _descriptionController),
+                    WidgetUtils.textField(appLoc.category, _categoryController),
                     const SizedBox(height: 20.0),
                     WidgetUtils.textField(
-                        'Rental Price', _rentalPriceController),
+                      appLoc.description,
+                      _descriptionController,
+                    ),
                     const SizedBox(height: 20.0),
-                    WidgetUtils.textField('Location', _locationController),
+                    WidgetUtils.textField(
+                      appLoc.rentalPrice,
+                      _rentalPriceController,
+                    ),
+                    const SizedBox(height: 20.0),
+                    WidgetUtils.textField(appLoc.location, _locationController),
                     const SizedBox(height: 20.0),
                     const SizedBox(height: 10.0),
-                    nextButton(),
+                    nextButton(context, appLoc),
                     const SizedBox(height: 100.0),
                   ],
                 );
@@ -78,6 +85,7 @@ class _PostScreenState extends State<PostScreen> {
   }
 
   Widget imagePicker(double width) {
+    final appLoc = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -104,8 +112,8 @@ class _PostScreenState extends State<PostScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            elevatedButton('Take Photo', Palette.red, _takePhoto),
-            elevatedButton('Pick Image', Colors.white, _pickImage),
+            elevatedButton(appLoc.takePhoto, Palette.red, _takePhoto),
+            elevatedButton(appLoc.pickImage, Colors.white, _pickImage),
           ],
         ),
       ],
@@ -154,7 +162,7 @@ class _PostScreenState extends State<PostScreen> {
     }
   }
 
-  Widget nextButton() {
+  Widget nextButton(BuildContext context, AppLocalizations appLoc) {
     return ElevatedButton(
       onPressed: () {
         // Navigate to the next screen for additional details
@@ -162,7 +170,7 @@ class _PostScreenState extends State<PostScreen> {
           name: _nameController.text,
           category: _categoryController.text,
           description: _descriptionController.text,
-          rentalPrice: double.parse(_rentalPriceController.text),
+          rentalPrice: double.tryParse(_rentalPriceController.text) ?? 0.0,
           location: _locationController.text,
         );
         Navigator.push(
@@ -182,9 +190,9 @@ class _PostScreenState extends State<PostScreen> {
         padding: const EdgeInsets.all(16.0),
         backgroundColor: Palette.red,
       ),
-      child: const Text(
-        'Next',
-        style: TextStyle(
+      child: Text(
+        appLoc.next,
+        style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: Colors.white,

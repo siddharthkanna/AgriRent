@@ -9,6 +9,7 @@ import 'package:agrirent/screens/auth.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -23,14 +24,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authNotifier = ref.read(authProvider);
     final User? user = authNotifier.user;
     String dp = user?.photoURL ?? '';
+    final appLoc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.only(left: 6, top: 6),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 6, top: 6),
           child: Text(
-            'Your Profile',
-            style: TextStyle(
+            appLoc.yourProfile,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.black,
@@ -39,19 +41,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              // _showLanguageDialog(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => LanguageSelectionScreen()),
-              );
-            },
-            icon: Icon(Icons.language),
-          ),
-        ],
+        
       ),
       body: SafeArea(
         child: Padding(
@@ -64,9 +54,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   const SizedBox(height: 60.0),
                   profilePicture(dp),
                   const SizedBox(height: 20.0),
-                  options(),
+                  options(context),
                   const SizedBox(height: 20.0),
-                  signOutButton(),
+                  signOutButton(context),
                 ],
               ),
             ],
@@ -83,33 +73,40 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget options() {
+  Widget options(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
     return Column(
       children: [
-        _buildOption('Profile Settings'),
-        _buildOption('Renting History'),
-        _buildOption('Posting History'),
-        _buildOption('Your Bookmarks'),
+        _buildOption(context, appLoc.profileSettings),
+        _buildOption(context, appLoc.rentingHistory),
+        _buildOption(context, appLoc.postingHistory),
+        _buildOption(context, appLoc.chooseYourLanguages),
       ],
     );
   }
 
-  Widget _buildOption(String optionText) {
+  Widget _buildOption(BuildContext context, String optionText) {
     return GestureDetector(
       onTap: () {
-        if (optionText == 'Renting History') {
+        if (optionText == AppLocalizations.of(context)!.rentingHistory) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => RentalHistoryPage()),
           );
-        } else if (optionText == 'Posting History') {
+        } else if (optionText == AppLocalizations.of(context)!.postingHistory) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const PostingHistoryPage()),
           );
-        } else {
-          // Handle other options
+        } else if (optionText == AppLocalizations.of(context)!.chooseYourLanguages) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) =>  LanguageSelectionScreen()),
+          );
+        }else{
+
         }
+        
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -136,7 +133,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  Widget signOutButton() {
+  Widget signOutButton(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -152,9 +150,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             MaterialPageRoute(builder: (context) => const SignUpScreen()),
           );
         },
-        child: const Text(
-          'Sign Out',
-          style: TextStyle(
+        child: Text(
+          appLoc.signOut,
+          style: const TextStyle(
             color: Colors.red,
             fontWeight: FontWeight.bold,
             fontSize: 16,

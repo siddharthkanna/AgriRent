@@ -5,6 +5,7 @@ import 'package:agrirent/constants/chatLoading.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
@@ -28,15 +29,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
     final currentUserID = FirebaseAuth.instance.currentUser?.uid;
 
     if (currentUserID == null) {
       return SafeArea(
         child: Scaffold(
           appBar: AppBar(
-            title: const Text(
-              'Chats',
-              style: TextStyle(
+            title: Text(
+              appLoc.chats,
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
@@ -55,11 +57,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.only(left: 6, top: 6),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 6, top: 6),
           child: Text(
-            'Chats',
-            style: TextStyle(
+            appLoc.chats,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.black,

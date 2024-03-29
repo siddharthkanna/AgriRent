@@ -1,32 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class Navbar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabTapped;
-
-  List<TabItem> items = const[
-    TabItem(
-      icon: Icons.home,
-      title: 'Home',
-    ),
-    TabItem(
-      icon: Icons.search_sharp,
-      title: 'Market',
-    ),
-    TabItem(
-      icon: Icons.add_circle_rounded,
-      title: 'Post',
-    ),
-    TabItem(
-      icon: Icons.chat_bubble_sharp,
-      title: 'Chat',
-    ),
-    TabItem(
-      icon: Icons.person_outline,
-      title: 'Profile',
-    ),
-  ];
 
   Navbar({
     required this.selectedIndex,
@@ -35,6 +13,31 @@ class Navbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
+
+    List<TabItem> items = [
+      TabItem(
+        icon: Icons.home,
+        title: appLoc.home,
+      ),
+      TabItem(
+        icon: Icons.search_sharp,
+        title: appLoc.rent,
+      ),
+      TabItem(
+        icon: Icons.add_circle_rounded,
+        title: appLoc.post,
+      ),
+      TabItem(
+        icon: Icons.chat_bubble_sharp,
+        title: appLoc.chat,
+      ),
+      TabItem(
+        icon: Icons.person_outline,
+        title: appLoc.profile,
+      ),
+    ];
+
     return SingleChildScrollView(
       child: Column(
         children: [

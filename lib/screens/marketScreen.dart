@@ -1,22 +1,34 @@
 import 'package:agrirent/models/EquipmentCategory.model.dart';
+import 'package:agrirent/providers/language_provider.dart';
+import 'package:agrirent/screens/categoryList.dart';
 import 'package:agrirent/screens/search.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MarketScreen extends StatelessWidget {
-  const MarketScreen({super.key});
+class MarketScreen extends ConsumerStatefulWidget {
+  const MarketScreen({Key? key}) : super(key: key);
 
   @override
+  _MarketScreenState createState() => _MarketScreenState();
+}
+
+class _MarketScreenState extends ConsumerState<MarketScreen> {
+  @override
   Widget build(BuildContext context) {
+    final locale = ref.watch(selectedLocaleProvider);
+    final appLoc = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Padding(
-          padding: EdgeInsets.only(left: 8, top: 8),
+        title: Padding(
+          padding: const EdgeInsets.only(left: 8, top: 8),
           child: Text(
-            'Market Place',
-            style: TextStyle(
+            appLoc.marketPlace,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.black,
@@ -56,12 +68,12 @@ class MarketScreen extends StatelessWidget {
                           child: TextField(
                             enabled: false,
                             onTap: openContainer,
-                            decoration: const InputDecoration(
-                              hintText: 'Search for equipment',
+                            decoration: InputDecoration(
+                              hintText: appLoc.searchForEquipment,
                               prefixIcon:
-                                  Icon(Icons.search, color: Colors.black),
+                                  const Icon(Icons.search, color: Colors.black),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16.0),
+                              contentPadding: const EdgeInsets.all(16.0),
                             ),
                           ),
                         ),
@@ -99,45 +111,66 @@ class MarketScreen extends StatelessWidget {
       crossAxisSpacing: crossAxisSpacing,
       mainAxisSpacing: 16.0,
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      children: marketCategories.map((category) {
-        return categoryItem(category.name, category.iconUrl);
+      children: MarketCategories.getMarketCategories(context).map((category) {
+        return categoryItem(category.localName, category.iconUrl,
+            category.englishName, context);
       }).toList(),
     );
   }
 
-  Widget categoryItem(String categoryName, String iconUrl) {
-    return Card(
-      elevation: 2.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
+  // Modify the categoryItem widget to include a gesture detector for clicking
+  Widget categoryItem(String categoryName, String iconUrl, String englishName,
+      BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _navigateToCategoryScreen(categoryName, englishName, context);
+      },
+      child: Card(
+        elevation: 2.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        color: const Color(0xFFF5A9A9),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(color: Colors.black87, width: 1.0),
+                ),
+                child: Image.asset(
+                  iconUrl,
+                  width: 35.0,
+                  height: 35.0,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8.0),
+              Text(
+                categoryName,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.black),
+              ),
+            ],
+          ),
+        ),
       ),
-      color: const Color(0xFFF5A9A9),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                border: Border.all(color: Colors.black87, width: 1.0),
-              ),
-              child: Image.asset(
-                iconUrl,
-                width: 35.0,
-                height: 35.0,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8.0),
-            Text(
-              categoryName,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black),
-            ),
-          ],
+    );
+  }
+
+  void _navigateToCategoryScreen(
+      String categoryName, String englishName, BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EquipmentListScreen(
+          categoryTitle: englishName,
+          displayTitle: categoryName,
         ),
       ),
     );

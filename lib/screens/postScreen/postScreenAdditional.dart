@@ -11,6 +11,7 @@ import 'package:agrirent/theme/palette.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AdditionalDetailsScreen extends ConsumerStatefulWidget {
   final List<File> imageFiles;
@@ -46,11 +47,13 @@ class _AdditionalDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Additional Details',
-          style: TextStyle(
+        title: Text(
+          appLoc.additionalDetails,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.black,
@@ -69,13 +72,15 @@ class _AdditionalDetailsScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      WidgetUtils.textField('Features', _featuresController),
+                      WidgetUtils.textField(
+                          appLoc.features, _featuresController),
                       const SizedBox(height: 20.0),
-                      WidgetUtils.textField('Condition', _conditionController),
+                      WidgetUtils.textField(
+                          appLoc.condition, _conditionController),
                       const SizedBox(height: 20.0),
-                      dateRangePicker('Availability Dates'),
+                      dateRangePicker(appLoc.availabilityDates),
                       const SizedBox(height: 20.0),
-                      deliveryModeDropdown(),
+                      deliveryModeDropdown(appLoc.ownerDelivery),
                       const SizedBox(height: 20.0),
                     ],
                   ),
@@ -86,7 +91,7 @@ class _AdditionalDetailsScreenState
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: postButton(),
+                child: postButton('Post'),
               ),
             ),
           ],
@@ -96,6 +101,8 @@ class _AdditionalDetailsScreenState
   }
 
   Widget dateRangePicker(String label) {
+    final appLoc = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -123,7 +130,7 @@ class _AdditionalDetailsScreenState
                   Text(
                     _startDate != null && _endDate != null
                         ? '${_formatDate(_startDate!)} to ${_formatDate(_endDate!)}'
-                        : 'Select Dates',
+                        : appLoc.selectDates,
                     style: const TextStyle(color: Colors.black),
                   ),
                   const Icon(Icons.calendar_today, color: Colors.black),
@@ -136,12 +143,14 @@ class _AdditionalDetailsScreenState
     );
   }
 
-  Widget deliveryModeDropdown() {
+  Widget deliveryModeDropdown(String label) {
+    final appLoc = AppLocalizations.of(context)!;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Delivery Mode',
+          label,
           style: const TextStyle(
             fontSize: 14.0,
             color: Colors.black,
@@ -149,8 +158,8 @@ class _AdditionalDetailsScreenState
         ),
         const SizedBox(height: 8.0),
         DropdownButtonFormField<String>(
-          value: _selectedDeliveryMode ?? 'Renter Pickup',
-          items: ['Renter Pickup', 'Owner Delivery', 'Both']
+          value: _selectedDeliveryMode ?? appLoc.renterPickup,
+          items: [appLoc.renterPickup, appLoc.ownerDelivery, appLoc.both]
               .map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
@@ -184,6 +193,8 @@ class _AdditionalDetailsScreenState
   }
 
   Future<void> _selectDateRange() async {
+    final appLoc = AppLocalizations.of(context)!;
+
     DateTimeRange? pickedDateRange = await showDateRangePicker(
       context: context,
       firstDate: DateTime.now(),
@@ -198,7 +209,9 @@ class _AdditionalDetailsScreenState
     }
   }
 
-  Widget postButton() {
+  Widget postButton(String label) {
+    final appLoc = AppLocalizations.of(context)!;
+
     return ElevatedButton(
       onPressed: () {
         // Trigger posting equipment details
@@ -211,9 +224,9 @@ class _AdditionalDetailsScreenState
         padding: const EdgeInsets.all(16.0),
         backgroundColor: Palette.red,
       ),
-      child: const Text(
-        'Post',
-        style: TextStyle(
+      child: Text(
+        label,
+        style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: Colors.white,
@@ -225,8 +238,8 @@ class _AdditionalDetailsScreenState
   Future<void> _postEquipment() async {
     setState(() {
       // Reset the error if any, and set the loading state
-      _postEquipmentFuture = _postEquipmentInternal().whenComplete(
-          () => setState(() {})); // Update the UI after completion
+      _postEquipmentFuture =
+          _postEquipmentInternal().whenComplete(() => setState(() {}));
     });
   }
 

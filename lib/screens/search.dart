@@ -2,7 +2,7 @@ import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/components/EquipmentListCard.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
 
@@ -55,6 +55,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
     return SafeArea(
       child: Scaffold(
         appBar: PreferredSize(
@@ -66,23 +67,23 @@ class _SearchScreenState extends State<SearchScreen> {
             leadingWidth: 40,
             title: TextField(
               controller: _searchTextController,
-              decoration: const InputDecoration(
-                hintText: 'Search for equipment',
-                prefixIcon: Icon(
+              decoration:  InputDecoration(
+                hintText: appLoc.searchForEquipment,
+                prefixIcon: const Icon(
                   Icons.search,
                   color: Colors.black,
                   size: 24,
                 ),
-                border: OutlineInputBorder(
+                border: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(12)),
                   borderSide: BorderSide(color: Colors.black),
                 ),
-                hintStyle: TextStyle(
+                hintStyle: const TextStyle(
                   color: Colors.grey,
                   fontStyle: FontStyle.italic,
                 ),
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               ),
             ),
           ),
@@ -90,8 +91,8 @@ class _SearchScreenState extends State<SearchScreen> {
         body: _searchResults.isEmpty
             ? Center(
                 child: Text(_isTyping
-                    ? 'No search results found.'
-                    : 'Search for equipment'),
+                    ? appLoc.noSearchResultsFound
+                    : appLoc.searchForEquipment),
               )
             : ListView.separated(
                 itemCount: _searchResults.length,

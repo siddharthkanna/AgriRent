@@ -27,7 +27,7 @@ class OnboardingScreen extends StatelessWidget {
           Container(
             alignment: Alignment.center,
             child: Image.asset(
-              'assets/farmer_onboarding.jpg',
+              'assets/farmerOnboarding.png',
               width: 350.0,
               height: 350.0,
             ),

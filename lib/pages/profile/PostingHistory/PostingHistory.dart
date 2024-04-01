@@ -56,8 +56,8 @@ class _PostingHistoryPageState extends ConsumerState<PostingHistoryPage> {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData) {
-            return const Center(child: Text('No equipment available'));
+          } else if (snapshot.data!.isEmpty) {
+            return const Center(child: Text("Looks like you haven't posted any equipment yet."));
           } else {
             final equipmentList = snapshot.data!;
             return ListView.builder(

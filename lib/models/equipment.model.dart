@@ -33,7 +33,7 @@ class Equipment {
 
   factory Equipment.fromJson(Map<String, dynamic> json) {
     return Equipment(
-      id: json['id'], // Assign ID from JSON data
+      id :json['_id'],
       name: json['name'],
       description: json['description'],
       category: json['category'],

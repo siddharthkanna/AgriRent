@@ -6,6 +6,7 @@ import 'package:agrirent/models/EquipmentCategory.model.dart';
 import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/providers/language_provider.dart';
+import 'package:agrirent/screens/postScreen/postScreen.dart';
 import 'package:agrirent/screens/search.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:animations/animations.dart';
@@ -190,6 +191,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             }).toList(),
                           ),
                         ),
+                        const SizedBox(height: 25),
+                        rentEquipmentSection(context),
                       ],
                     );
                   }
@@ -199,6 +202,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget rentEquipmentSection(BuildContext context) {
+    final appLoc = AppLocalizations.of(context)!;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Text(
+          'Have an Equipment?',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black, // Text color
+          ),
+        ),
+        const SizedBox(width: 25),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const  PostScreen(),
+              ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Palette.red, // Text color
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8), // Decrease border radius
+            ),
+          ),
+          child: const Text(
+            'Post here',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white, // Text color
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

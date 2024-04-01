@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:agrirent/components/image_picker.dart';
 import 'package:agrirent/components/textField.dart';
+import 'package:agrirent/models/EquipmentCategory.model.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/postScreenAdditional.dart';
 import 'package:agrirent/theme/palette.dart';
@@ -18,10 +19,10 @@ class _PostScreenState extends State<PostScreen> {
   final ImagePickerHelper _imagePickerHelper = ImagePickerHelper();
   final List<File> _imageFiles = [];
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _rentalPriceController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  String? _selectedCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +31,7 @@ class _PostScreenState extends State<PostScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title:  Padding(
+        title: Padding(
           padding: const EdgeInsets.only(left: 6, top: 6),
           child: Text(
             appLoc.postYourEquipment,
@@ -57,7 +58,7 @@ class _PostScreenState extends State<PostScreen> {
                     const SizedBox(height: 20.0),
                     WidgetUtils.textField(appLoc.name, _nameController),
                     const SizedBox(height: 20.0),
-                    WidgetUtils.textField(appLoc.category, _categoryController),
+                    categoryDropdown(appLoc.category),
                     const SizedBox(height: 20.0),
                     WidgetUtils.textField(
                       appLoc.description,
@@ -168,7 +169,7 @@ class _PostScreenState extends State<PostScreen> {
         // Navigate to the next screen for additional details
         Equipment equipment = Equipment(
           name: _nameController.text,
-          category: _categoryController.text,
+          category: _selectedCategory ?? '',
           description: _descriptionController.text,
           rentalPrice: double.tryParse(_rentalPriceController.text) ?? 0.0,
           location: _locationController.text,
@@ -200,4 +201,55 @@ class _PostScreenState extends State<PostScreen> {
       ),
     );
   }
+
+Widget categoryDropdown(String label) {
+  final appLoc = AppLocalizations.of(context)!;
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 14.0,
+          color: Colors.black,
+        ),
+      ),
+      const SizedBox(height: 8.0),
+      DropdownButtonFormField<String>(
+        value: _selectedCategory ?? EquipmentCategories.getEquipmentCategories(context).first.englishTitle,
+        items: EquipmentCategories.getEquipmentCategories(context)
+            .map<DropdownMenuItem<String>>((category) {
+          return DropdownMenuItem<String>(
+            value: category.englishTitle,
+            child: Text(
+              category.localTitle,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+          );
+        }).toList(),
+        onChanged: (String? value) {
+          setState(() {
+            _selectedCategory = value!;
+          });
+        },
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.grey[200]!),
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+          filled: true,
+          fillColor: Colors.grey[200],
+        ),
+      ),
+    ],
+  );
+}
 }

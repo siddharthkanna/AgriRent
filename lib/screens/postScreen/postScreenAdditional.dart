@@ -80,7 +80,7 @@ class _AdditionalDetailsScreenState
                       const SizedBox(height: 20.0),
                       dateRangePicker(appLoc.availabilityDates),
                       const SizedBox(height: 20.0),
-                      deliveryModeDropdown(appLoc.ownerDelivery),
+                      deliveryModeDropdown('Delivery'),
                       const SizedBox(height: 20.0),
                     ],
                   ),
@@ -158,8 +158,8 @@ class _AdditionalDetailsScreenState
         ),
         const SizedBox(height: 8.0),
         DropdownButtonFormField<String>(
-          value: _selectedDeliveryMode ?? appLoc.renterPickup,
-          items: [appLoc.renterPickup, appLoc.ownerDelivery, appLoc.both]
+          value: _selectedDeliveryMode ?? 'Renter Pickup',
+          items: ['Renter Pickup', 'Owner Delivery', 'Both']
               .map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,
@@ -280,7 +280,7 @@ class _AdditionalDetailsScreenState
       await EquipmentApi.postEquipmentData(imageUrls, equipment, context);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const SuccessScreen()),
+        MaterialPageRoute(builder: (context) => const SuccessScreenPosting()),
       );
     } catch (error) {
       CustomSnackBar.showError(context, 'Error posting Equipment!');

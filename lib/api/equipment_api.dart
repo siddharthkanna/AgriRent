@@ -19,7 +19,7 @@ class EquipmentApi {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const SuccessScreen(),
+          builder: (context) => const SuccessScreenPosting(),
         ),
       );
     } catch (error) {
@@ -92,7 +92,7 @@ class EquipmentApi {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const SuccessScreen(),
+            builder: (context) => const SuccessScreenRent(),
           ),
         );
       } else {

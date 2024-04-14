@@ -34,7 +34,7 @@ class EquipmentCard extends StatelessWidget {
                         top: Radius.circular(15),
                       ),
                       child: Image.network(
-                        equipment.images?.first ?? '',
+                       (equipment.images!.isNotEmpty) ? equipment.images!.first : '',
                         width: double.infinity,
                         height: 88,
                         fit: BoxFit.cover,

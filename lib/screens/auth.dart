@@ -52,21 +52,29 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     return const CircularProgressIndicator();
                   } else {
                     return ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Palette.red,
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Palette.red,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                         ),
-                      ),
-                      onPressed: () async {
-                        await UserApi().signIn(context, auth);
-                      },
-                      child: const Text(
-                        'Sign in with Google',
-                        style: TextStyle(color: Palette.white),
-                      ),
-                    );
+                        onPressed: () async {
+                          await UserApi().signIn(context, auth);
+                        },
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.g_mobiledata_sharp,
+                                color: Palette.white, size: 30), 
+                            SizedBox(
+                                width: 10), // Add spacing between icon and text
+                            Text(
+                              'Sign in with Google',
+                              style: TextStyle(color: Palette.white, fontWeight: FontWeight.bold,),
+                            ),
+                          ],
+                        ));
                   }
                 },
               ),

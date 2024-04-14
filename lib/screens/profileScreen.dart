@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:agrirent/screens/LanguageSelection.dart';
+import 'package:agrirent/screens/profileSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:agrirent/pages/profile/RentingHistory/RentalHistory.dart';
 import 'package:agrirent/pages/profile/PostingHistory/PostingHistory.dart';
@@ -41,7 +42,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        
       ),
       body: SafeArea(
         child: Padding(
@@ -98,15 +98,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             context,
             MaterialPageRoute(builder: (context) => const PostingHistoryPage()),
           );
-        } else if (optionText == AppLocalizations.of(context)!.chooseYourLanguages) {
+        } else if (optionText ==
+            AppLocalizations.of(context)!.chooseYourLanguages) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) =>  LanguageSelectionScreen()),
+            MaterialPageRoute(builder: (context) => LanguageSelectionScreen()),
           );
-        }else{
-
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileSettingsScreen()),
+          );
         }
-        
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0),

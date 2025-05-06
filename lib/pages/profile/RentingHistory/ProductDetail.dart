@@ -2,7 +2,6 @@
 
 import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:agrirent/models/equipment.model.dart';
 
 class ProductInfoPageRent extends StatelessWidget {
@@ -12,6 +11,24 @@ class ProductInfoPageRent extends StatelessWidget {
     Key? key,
     required this.equipment,
   }) : super(key: key);
+
+  Widget _buildImageDisplay(List<String>? images) {
+    return SizedBox(
+      height: 300,
+      child: images != null && images.isNotEmpty
+          ? Image.network(
+              images.first,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            )
+          : Center(
+              child: Text(
+                'No images available',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +45,7 @@ class ProductInfoPageRent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImageCarousel(equipment.images),
+            _buildImageDisplay(equipment.images),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -143,49 +160,6 @@ class ProductInfoPageRent extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildImageCarousel(List<String>? images) {
-    return SizedBox(
-      height: 300,
-      child: images != null && images.isNotEmpty
-          ? CarouselSlider(
-              options: CarouselOptions(
-                height: 300,
-                aspectRatio: 16 / 9,
-                viewportFraction: 1.0,
-                initialPage: 0,
-                enableInfiniteScroll: true,
-                reverse: false,
-                autoPlay: true,
-                autoPlayInterval: Duration(seconds: 3),
-                autoPlayAnimationDuration: Duration(milliseconds: 800),
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enlargeCenterPage: true,
-                scrollDirection: Axis.horizontal,
-              ),
-              items: images.map((image) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Image.network(
-                        image,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                );
-              }).toList(),
-            )
-          : Center(
-              child: Text(
-                'No images available',
-                style: TextStyle(fontSize: 16),
-              ),
-            ),
     );
   }
 }

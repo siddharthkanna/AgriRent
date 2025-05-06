@@ -8,28 +8,26 @@ import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/success.dart';
 import 'package:agrirent/theme/palette.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:agrirent/providers/auth_provider.dart';
 
-class AdditionalDetailsScreen extends ConsumerStatefulWidget {
-  final List<File> imageFiles;
+class PostScreenAdditional extends ConsumerStatefulWidget {
   final Equipment equipment;
+  final List<File> imageFiles;
 
-  const AdditionalDetailsScreen({
+  const PostScreenAdditional({
     Key? key,
-    required this.imageFiles,
     required this.equipment,
+    required this.imageFiles,
   }) : super(key: key);
 
   @override
-  _AdditionalDetailsScreenState createState() =>
-      _AdditionalDetailsScreenState();
+  ConsumerState<PostScreenAdditional> createState() => _PostScreenAdditionalState();
 }
 
-class _AdditionalDetailsScreenState
-    extends ConsumerState<AdditionalDetailsScreen> {
+class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
   DateTime? _startDate;
   DateTime? _endDate;
 
@@ -257,7 +255,8 @@ class _AdditionalDetailsScreenState
       List<String> imageUrls =
           await ImageUploadFirebase.uploadImages(widget.imageFiles);
 
-      final userId = FirebaseAuth.instance.currentUser?.uid;
+      final authNotifier = ref.read(authProvider);
+      final userId = authNotifier.userId;
 
       if (userId == null) {
         return;

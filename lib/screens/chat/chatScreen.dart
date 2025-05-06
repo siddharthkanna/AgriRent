@@ -3,10 +3,11 @@
 import 'package:agrirent/config/chat/message_notifier.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:agrirent/providers/auth_provider.dart';
 
-class ChatMessagesScreen extends StatefulWidget {
+class ChatMessagesScreen extends ConsumerStatefulWidget {
   final String chatId;
   final String userPhotoUrl;
   final String userName;
@@ -21,10 +22,10 @@ class ChatMessagesScreen extends StatefulWidget {
   _ChatMessagesScreenState createState() => _ChatMessagesScreenState();
 }
 
-class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
+class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
   late CollectionReference _messagesCollection;
   final TextEditingController _messageController = TextEditingController();
-  final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  late String currentUserId;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _ChatMessagesScreenState extends State<ChatMessagesScreen> {
         .collection('chats')
         .doc(widget.chatId)
         .collection('messages');
+    currentUserId = ref.read(authProvider).userId ?? '';
   }
 
   @override

@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:agrirent/config/supabase_config.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ImageUploadFirebase {
   static Future<List<String>> uploadImages(List<File> imageFiles) async {
     List<String> imageUrls = [];
-    final User? user = FirebaseAuth.instance.currentUser;
+    final user = SupabaseConfig.currentUser;
 
     if (user == null) {
       print("User is not authenticated");
@@ -15,15 +15,24 @@ class ImageUploadFirebase {
     try {
       for (File imageFile in imageFiles) {
         String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-        Reference storageReference = FirebaseStorage.instance
-            .ref()
-            .child('users/${user.uid}/images/$fileName.jpg');
+        final bytes = await imageFile.readAsBytes();
+        
+        final response = await SupabaseConfig.supabase.storage
+            .from('equipment-images')
+            .uploadBinary(
+              'users/${user.id}/images/$fileName.jpg',
+              bytes,
+              fileOptions: const FileOptions(
+                contentType: 'image/jpeg',
+              ),
+            );
 
-        UploadTask uploadTask = storageReference.putFile(imageFile);
-        await uploadTask.whenComplete(() async {
-          String imageUrl = await storageReference.getDownloadURL();
+        if (response.isNotEmpty) {
+          final imageUrl = SupabaseConfig.supabase.storage
+              .from('equipment-images')
+              .getPublicUrl('users/${user.id}/images/$fileName.jpg');
           imageUrls.add(imageUrl);
-        });
+        }
       }
     } catch (error) {
       print("Error uploading images: $error");

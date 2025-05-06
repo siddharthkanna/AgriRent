@@ -4,17 +4,18 @@ import 'package:agrirent/config/chat/message_notifier.dart';
 import 'package:agrirent/constants/chatLoading.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:agrirent/providers/auth_provider.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends ConsumerStatefulWidget {
   const ChatScreen({Key? key}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> {
   final CollectionReference _chatsCollection =
       FirebaseFirestore.instance.collection('chats');
 
@@ -30,7 +31,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final appLoc = AppLocalizations.of(context)!;
-    final currentUserID = FirebaseAuth.instance.currentUser?.uid;
+    final authNotifier = ref.read(authProvider);
+    final currentUserID = authNotifier.userId;
 
     if (currentUserID == null) {
       return SafeArea(

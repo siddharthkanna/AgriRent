@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:agrirent/config/supabase_config.dart';
 
 Future<String> initiateChat(String ownerId) async {
   try {
     // Get current user ID
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final currentUser = SupabaseConfig.currentUser;
+    if (currentUser == null) {
+      throw Exception('User not authenticated');
+    }
+    final currentUserId = currentUser.id;
 
     // Check for existing chat initiated by ownerId
     final chatsRef = FirebaseFirestore.instance.collection('chats');

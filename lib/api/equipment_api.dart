@@ -5,7 +5,7 @@ import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/success.dart';
 import 'package:agrirent/screens/profileScreen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:agrirent/config/supabase_config.dart';
 import 'package:flutter/material.dart';
 
 class EquipmentApi {
@@ -35,7 +35,8 @@ class EquipmentApi {
       if (response.statusCode == 200) {
         List<dynamic> jsonData = response.data;
 
-        final currentUserID = FirebaseAuth.instance.currentUser?.uid;
+        final currentUser = SupabaseConfig.currentUser;
+        final currentUserID = currentUser?.id;
 
         List<Equipment> equipmentList = jsonData
             .map((json) => Equipment.fromJson(json))

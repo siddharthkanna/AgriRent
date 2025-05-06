@@ -10,7 +10,6 @@ import 'package:agrirent/screens/postScreen/postScreen.dart';
 import 'package:agrirent/screens/search.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:animations/animations.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -47,9 +46,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final authNotifier = ref.read(authProvider);
-    final User? user = authNotifier.user;
-    String dp = user?.photoURL ?? '';
-    String name = user?.displayName ?? '';
+    final user = authNotifier.user;
+    String dp = user?.userMetadata?['avatar_url'] ?? '';
+    String name = user?.userMetadata?['full_name'] ?? '';
     final locale = ref.watch(selectedLocaleProvider);
     final appLoc = AppLocalizations.of(context)!;
 

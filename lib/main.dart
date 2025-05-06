@@ -4,6 +4,7 @@ import 'package:agrirent/providers/language_provider.dart';
 import 'package:agrirent/screens/onboarding.dart';
 import 'package:agrirent/screens/pageview.dart';
 import 'package:agrirent/theme/palette.dart';
+import 'package:agrirent/config/supabase_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,6 +16,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load();
+  await SupabaseConfig.initialize();
   runApp(
     ProviderScope(
       child: MyApp(),
@@ -55,7 +57,7 @@ class MyApp extends ConsumerWidget {
           builder: (context, ref, _) {
             final user = ref.read(authProvider).user;
             return user != null
-                ? const PageViewScreen() 
+                ? const PageViewScreen()
                 : const OnboardingScreen();
           },
         ),

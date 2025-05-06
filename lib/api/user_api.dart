@@ -13,11 +13,11 @@ class UserApi {
 
       if (user != null) {
         final userData = User(
-          displayName: user.displayName ?? '',
+          displayName: user.userMetadata?['full_name'] ?? '',
           email: user.email ?? '',
-          googleId: user.uid,
-          photoURL: user.photoURL ?? '',
-          mobileNumber: user.phoneNumber ?? '',
+          googleId: user.id,
+          photoURL: user.userMetadata?['avatar_url'] ?? '',
+          mobileNumber: user.phone ?? '',
         );
         final userDataJson = userData.toJson();
         final response = await dio.post(
@@ -36,6 +36,7 @@ class UserApi {
       }
     } catch (e) {
       print("Error during Google sign-in: $e");
+      throw e;
     }
   }
 

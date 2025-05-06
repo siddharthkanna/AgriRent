@@ -1,28 +1,27 @@
 // ignore_for_file: avoid_print
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/supabase_config.dart';
 import '../models/user.model.dart' as UserModel;
 
 final authProvider = Provider((ref) => AuthNotifier());
 
 class AuthNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final _supabase = SupabaseConfig.supabase;
 
-  User? get user => _auth.currentUser;
-  String? get userId => user?.uid;
+  User? get user => _supabase.auth.currentUser;
+  String? get userId => user?.id;
 
   UserModel.User? get userDetails {
     if (user != null) {
       return UserModel.User(
-        displayName: user!.displayName ?? "",
+        displayName: user!.userMetadata?['full_name'] ?? "",
         email: user!.email ?? "",
-        googleId: user!.uid,
-        photoURL: user!.photoURL ?? "",
-        mobileNumber: user!.phoneNumber ?? "",
+        googleId: user!.id,
+        photoURL: user!.userMetadata?['avatar_url'] ?? "",
+        mobileNumber: user!.phone ?? "",
       );
     }
     return null;
@@ -30,26 +29,19 @@ class AuthNotifier {
 
   Future<void> signInWithGoogle(BuildContext context) async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser!.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-      await _auth.signInWithCredential(credential);
+      await SupabaseConfig.signInWithGoogle();
     } catch (error) {
       print("Error signing in with Google: $error");
+      throw error;
     }
   }
 
   Future<void> signOut() async {
     try {
-      await _auth.signOut();
-      await _googleSignIn.signOut();
+      await SupabaseConfig.signOut();
     } catch (e) {
       print('Failed to sign out. Please try again.: $e');
+      throw e;
     }
   }
 }

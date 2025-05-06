@@ -23,8 +23,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final authNotifier = ref.read(authProvider);
-    final User? user = authNotifier.user;
-    String dp = user?.photoURL ?? '';
+    final user = authNotifier.user;
+    String dp = user?.userMetadata?['avatar_url'] ?? '';
     final appLoc = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(

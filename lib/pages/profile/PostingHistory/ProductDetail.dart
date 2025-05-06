@@ -4,7 +4,6 @@ import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:agrirent/models/equipment.model.dart';
 
 class ProductInfoPagePost extends StatefulWidget {
@@ -120,7 +119,7 @@ class _ProductInfoPageState extends State<ProductInfoPagePost> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildImageCarousel(widget.equipment.images),
+            _buildImageDisplay(widget.equipment.images),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -299,39 +298,14 @@ class _ProductInfoPageState extends State<ProductInfoPagePost> {
     );
   }
 
-  Widget _buildImageCarousel(List<String>? images) {
+  Widget _buildImageDisplay(List<String>? images) {
     return SizedBox(
       height: 300,
       child: images != null && images.isNotEmpty
-          ? CarouselSlider(
-              options: CarouselOptions(
-                height: 300,
-                aspectRatio: 16 / 9,
-                viewportFraction: 1.0,
-                initialPage: 0,
-                enableInfiniteScroll: true,
-                reverse: false,
-                autoPlay: true,
-                autoPlayInterval: Duration(seconds: 3),
-                autoPlayAnimationDuration: Duration(milliseconds: 800),
-                autoPlayCurve: Curves.fastOutSlowIn,
-                enlargeCenterPage: true,
-                scrollDirection: Axis.horizontal,
-              ),
-              items: images.map((image) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      child: Image.network(
-                        image,
-                        fit: BoxFit.cover,
-                      ),
-                    );
-                  },
-                );
-              }).toList(),
+          ? Image.network(
+              images.first,
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.cover,
             )
           : Center(
               child: Text(

@@ -5,7 +5,6 @@ import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/chat/chatScreen.dart';
 import 'package:agrirent/theme/palette.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,33 +30,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
           children: [
             Stack(
               children: [
-                if (images.length > 1)
-                  SizedBox(
-                    height: 250.0,
-                    child: CarouselSlider(
-                      options: CarouselOptions(
-                        enlargeCenterPage: true,
-                        autoPlay: true,
-                        aspectRatio: 16 / 9,
-                        autoPlayCurve: Curves.fastOutSlowIn,
-                        enableInfiniteScroll: true,
-                        autoPlayAnimationDuration:
-                            const Duration(milliseconds: 800),
-                        viewportFraction: 0.8,
-                      ),
-                      items: images.map((image) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Image.network(
-                              image,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        );
-                      }).toList(),
-                    ),
-                  )
-                else if (images.isNotEmpty)
+                if (images.isNotEmpty)
                   Image.network(
                     images.first,
                     fit: BoxFit.cover,

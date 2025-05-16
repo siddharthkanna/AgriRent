@@ -1,9 +1,6 @@
 // ignore_for_file: file_names, use_build_context_synchronously
 import 'dart:io';
 import 'package:agrirent/api/equipment_api.dart';
-import 'package:agrirent/components/textField.dart';
-import 'package:agrirent/config/image_upload.dart';
-import 'package:agrirent/constants/loading.dart';
 import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/success.dart';
@@ -11,7 +8,6 @@ import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/services/storage_service.dart';
 
 class PostScreenAdditional extends ConsumerStatefulWidget {
@@ -325,7 +321,6 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
     });
 
     try {
-      // Show simple loading dialog
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -338,10 +333,8 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
         },
       );
 
-      // Upload images to Supabase Storage
       final List<String> imageUrls = await StorageService.uploadImages(widget.imageFiles);
 
-      // Update equipment with additional details and image URLs
       final updatedEquipment = widget.equipment.copyWith(
         condition: _conditionController.text,
         features: _featuresController.text,
@@ -349,13 +342,10 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
         images: imageUrls,
       );
 
-      // Submit equipment to API
       await EquipmentApi.createEquipment(context, updatedEquipment);
 
-      // Dismiss loading dialog
       Navigator.pop(context);
 
-      // Navigate to success screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -363,7 +353,6 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
         ),
       );
     } catch (e) {
-      // Dismiss loading dialog if showing
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       }

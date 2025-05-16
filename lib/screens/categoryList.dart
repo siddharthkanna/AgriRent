@@ -26,7 +26,7 @@ class EquipmentListScreen extends StatelessWidget {
         ),
       ),
       body: FutureBuilder<List<Equipment>>(
-        future: EquipmentApi.getAllEquipmentData(),
+        future: EquipmentApi.getAvailableEquipment(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SkeletonCardList(itemCount: 5);

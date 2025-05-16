@@ -1,8 +1,10 @@
 import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/components/EquipmentListCard.dart';
 import 'package:agrirent/models/equipment.model.dart';
+import 'package:agrirent/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
 
@@ -10,36 +12,60 @@ class SearchScreen extends StatefulWidget {
   _SearchScreenState createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderStateMixin {
   final _searchTextController = TextEditingController();
   List<Equipment> _searchResults = [];
-  bool _isTyping = true;
+  bool _isTyping = false;
+  bool _isLoading = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
     _searchTextController.addListener(() {
       setState(() {
         _isTyping = _searchTextController.text.isNotEmpty;
       });
+      if (_isTyping) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
       _updateSearchResults(_searchTextController.text);
     });
-    // Fetch initial search results when the screen is opened
-    _updateSearchResults('');
+  }
+
+  @override
+  void dispose() {
+    _searchTextController.dispose();
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _updateSearchResults(String query) async {
-    try {
-      if (query.isEmpty) {
-        // If the query is empty, reset the search results
-        setState(() {
-          _searchResults = [];
-        });
-        return;
-      }
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = [];
+        _isLoading = false;
+      });
+      return;
+    }
 
-      final List<Equipment> equipmentList =
-          await EquipmentApi.getAllEquipmentData();
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final List<Equipment> equipmentList = await EquipmentApi.getAvailableEquipment();
       final List<Equipment> filteredResults = equipmentList
           .where((equipment) =>
               equipment.name.toLowerCase().contains(query.toLowerCase()))
@@ -47,68 +73,177 @@ class _SearchScreenState extends State<SearchScreen> {
 
       setState(() {
         _searchResults = filteredResults;
+        _isLoading = false;
       });
     } catch (error) {
       print('Error updating search results: $error');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final appLoc = AppLocalizations.of(context)!;
-    return SafeArea(
-      child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
-          child: AppBar(
-           
-            iconTheme: const IconThemeData(color: Colors.black),
-            elevation: 0,
-            leadingWidth: 40,
-            title: TextField(
-              controller: _searchTextController,
-              decoration:  InputDecoration(
-                hintText: appLoc.searchForEquipment,
-                prefixIcon: const Icon(
-                  Icons.search,
-                  color: Colors.black,
-                  size: 24,
+    return Scaffold(
+      backgroundColor: const Color(0xFFFAFAFA),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(75),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_rounded, size: 18),
+            onPressed: () => Navigator.pop(context),
+            color: Colors.black87,
+          ),
+          titleSpacing: 0,
+          title: Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Container(
+              height: 45,
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: TextField(
+                controller: _searchTextController,
+                autofocus: true,
+                textAlignVertical: TextAlignVertical.center,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                 ),
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  borderSide: BorderSide(color: Colors.black),
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: appLoc.searchForEquipment,
+                  prefixIcon: Padding(
+                    padding: const EdgeInsets.only(left: 12, right: 8),
+                    child: AnimatedBuilder(
+                      animation: _animation,
+                      builder: (context, child) {
+                        return Icon(
+                          Icons.search_rounded,
+                          color: Color.lerp(Colors.grey[400], Palette.red, _animation.value),
+                          size: 22,
+                        );
+                      },
+                    ),
+                  ),
+                  prefixIconConstraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                  suffixIcon: _isTyping
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 18),
+                          onPressed: () {
+                            _searchTextController.clear();
+                            setState(() {
+                              _isTyping = false;
+                            });
+                          },
+                          color: Colors.grey[400],
+                        ),
+                      )
+                    : null,
+                  suffixIconConstraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(
+                    color: Colors.grey[400],
+                    fontSize: 15,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
-                hintStyle: const TextStyle(
-                  color: Colors.grey,
-                  fontStyle: FontStyle.italic,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
               ),
             ),
           ),
         ),
-        body: _searchResults.isEmpty
-            ? Center(
-                child: Text(_isTyping
-                    ? appLoc.noSearchResultsFound
-                    : appLoc.searchForEquipment),
-              )
-            : ListView.separated(
-                itemCount: _searchResults.length,
-                itemBuilder: (context, index) {
-                  final Equipment equipment = _searchResults[index];
-                  return EquipmentListCard(equipment: equipment);
-                },
-                separatorBuilder: (context, index) {
-                  return const Divider(
-                    height: 0.5,
-                    color: Colors.black26,
-                    indent: 20,
-                    endIndent: 20,
-                  );
-                },
+      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _buildBody(appLoc),
+      ),
+    );
+  }
+
+  Widget _buildBody(AppLocalizations appLoc) {
+    if (_isLoading) {
+      return const Center(
+        child: SizedBox(
+          width: 30,
+          height: 30,
+          child: CircularProgressIndicator(
+            color: Palette.red,
+            strokeWidth: 2.5,
+          ),
+        ),
+      );
+    }
+
+    if (_searchResults.isEmpty) {
+      return _buildEmptyState(appLoc);
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      itemCount: _searchResults.length,
+      physics: const BouncingScrollPhysics(),
+      itemBuilder: (context, index) {
+        final Equipment equipment = _searchResults[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: EquipmentListCard(equipment: equipment),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState(AppLocalizations appLoc) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return Icon(
+                _isTyping ? Icons.search_off_rounded : Icons.search_rounded,
+                size: 70,
+                color: Color.lerp(Colors.grey[300], Colors.grey[400], _animation.value),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          Text(
+            _isTyping ? appLoc.noSearchResultsFound : appLoc.searchForEquipment,
+            style: TextStyle(
+              fontSize: 17,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+              letterSpacing: -0.3,
+            ),
+          ),
+          if (_isTyping) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Try different keywords or filters',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[400],
+                height: 1.5,
               ),
+            ),
+          ],
+        ],
       ),
     );
   }

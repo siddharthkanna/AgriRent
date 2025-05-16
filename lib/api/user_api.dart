@@ -8,10 +8,14 @@ import '../models/user.model.dart';
 class UserApi {
   Future<void> signIn(BuildContext context, AuthNotifier auth) async {
     try {
+      print("Starting Google sign-in process");
       await auth.signInWithGoogle(context);
       final user = auth.user;
+      print("User: ${user?.email}");
+      print("Google sign-in completed. User: ${user?.id}");
 
       if (user != null) {
+        print("Creating User object with metadata");
         final userData = User(
           displayName: user.userMetadata?['full_name'] ?? '',
           email: user.email ?? '',
@@ -20,22 +24,29 @@ class UserApi {
           mobileNumber: user.phone ?? '',
         );
         final userDataJson = userData.toJson();
+        print("User data prepared: $userDataJson");
+
+        print("Sending POST request to $loginUrl");
         final response = await dio.post(
           loginUrl,
           data: userDataJson,
         );
         print("User email: ${auth.user?.email}");
-        print(response.data);
+        print("Server response: ${response.data}");
 
+        print("Navigating to PageViewScreen");
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => PageViewScreen(),
+            builder: (context) => const PageViewScreen(),
           ),
         );
+      } else {
+        print("User is null after Google sign-in");
       }
     } catch (e) {
       print("Error during Google sign-in: $e");
+      print("Stack trace: ${StackTrace.current}");
       throw e;
     }
   }

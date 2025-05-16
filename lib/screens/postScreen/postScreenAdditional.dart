@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:agrirent/providers/auth_provider.dart';
+import 'package:agrirent/services/storage_service.dart';
 
 class PostScreenAdditional extends ConsumerStatefulWidget {
   final Equipment equipment;
@@ -33,9 +34,11 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
 
   final TextEditingController _featuresController = TextEditingController();
   final TextEditingController _conditionController = TextEditingController();
+  final TextEditingController _deliveryModeController = TextEditingController();
   String? _selectedDeliveryMode;
 
   late Future<void> _postEquipmentFuture;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -81,7 +84,7 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
               children: [
                 _buildDetailsSection(appLoc),
                 const SizedBox(height: 32.0),
-                postButton(appLoc.post),
+                _buildSubmitButton(appLoc.post),
                 const SizedBox(height: 96.0),
               ],
             ),
@@ -292,11 +295,9 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
     }
   }
 
-  Widget postButton(String label) {
+  Widget _buildSubmitButton(String label) {
     return ElevatedButton(
-      onPressed: () {
-        _postEquipment();
-      },
+      onPressed: _isLoading ? null : _submitEquipment,
       style: ElevatedButton.styleFrom(
         backgroundColor: Palette.red,
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -306,7 +307,7 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
         elevation: 0,
       ),
       child: Text(
-        label,
+        _isLoading ? 'Creating Listing...' : label,
         style: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -316,71 +317,66 @@ class _PostScreenAdditionalState extends ConsumerState<PostScreenAdditional> {
     );
   }
 
-  Future<void> _postEquipment() async {
-    setState(() {
-      // Reset the error if any, and set the loading state
-      _postEquipmentFuture =
-          _postEquipmentInternal().whenComplete(() => setState(() {}));
-    });
-  }
+  Future<void> _submitEquipment() async {
+    if (_isLoading) return;
 
-  Future<void> _postEquipmentInternal() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      // Show loading overlay
+      // Show simple loading dialog
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
-          return Loading();
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Palette.red),
+            ),
+          );
         },
       );
 
-      List<String> imageUrls =
-          await ImageUploadFirebase.uploadImages(widget.imageFiles);
+      // Upload images to Supabase Storage
+      final List<String> imageUrls = await StorageService.uploadImages(widget.imageFiles);
 
-      final authNotifier = ref.read(authProvider);
-      final userId = authNotifier.userId;
-
-      if (userId == null) {
-        return;
-      }
-
-      Equipment equipment = Equipment(
-        name: widget.equipment.name,
-        category: widget.equipment.category,
-        description: widget.equipment.description,
-        rentalPrice: widget.equipment.rentalPrice,
-        location: widget.equipment.location,
-        features: _featuresController.text,
+      // Update equipment with additional details and image URLs
+      final updatedEquipment = widget.equipment.copyWith(
         condition: _conditionController.text,
-        availabilityDates: _generateDateList(_startDate, _endDate),
-        images: imageUrls,
-        ownerId: userId,
+        features: _featuresController.text,
         deliveryMode: _selectedDeliveryMode ?? 'Renter Pickup',
+        images: imageUrls,
       );
 
-      await EquipmentApi.postEquipmentData(imageUrls, equipment, context);
+      // Submit equipment to API
+      await EquipmentApi.createEquipment(context, updatedEquipment);
+
+      // Dismiss loading dialog
+      Navigator.pop(context);
+
+      // Navigate to success screen
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const SuccessScreenPosting()),
+        MaterialPageRoute(
+          builder: (context) => const SuccessScreenPosting(),
+        ),
       );
-    } catch (error) {
-      CustomSnackBar.showError(context, 'Error posting Equipment!');
-      throw error;
-    }
-  }
-
-  List<String>? _generateDateList(DateTime? startDate, DateTime? endDate) {
-    if (startDate != null && endDate != null) {
-      List<String> dateList = [];
-      for (DateTime date = startDate;
-          date.isBefore(endDate) || date.isAtSameMomentAs(endDate);
-          date = date.add(const Duration(days: 1))) {
-        dateList.add(date.toIso8601String().substring(0, 10));
+    } catch (e) {
+      // Dismiss loading dialog if showing
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
       }
-      return dateList;
-    } else {
-      return null;
+
+      print('Error submitting equipment: $e');
+      CustomSnackBar.showError(
+        context, 
+        'Failed to create listing. Please try again.',
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 }

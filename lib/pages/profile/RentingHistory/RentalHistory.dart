@@ -16,18 +16,16 @@ class RentalHistoryPage extends ConsumerStatefulWidget {
 
 class _RentalHistoryPageState extends ConsumerState<RentalHistoryPage> {
   late Future<List<Equipment>> _equipmentHistoryFuture;
-  late String _userId;
 
   @override
   void initState() {
     super.initState();
-    _userId = ref.read(authProvider).userId ?? '';
     _equipmentHistoryFuture = fetchEquipmentHistory();
   }
 
   Future<List<Equipment>> fetchEquipmentHistory() async {
     try {
-      final equipmentHistory = await EquipmentApi.fetchRentalHistory(_userId);
+      final equipmentHistory = await EquipmentApi.fetchRentalHistory();
       return equipmentHistory;
     } catch (e) {
       throw Exception('Failed to fetch equipment rental history: $e');

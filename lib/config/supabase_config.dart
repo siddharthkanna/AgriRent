@@ -36,20 +36,26 @@ class SupabaseConfig {
   
   static Future<User?> signInWithGoogle() async {
     try {
+      print('Starting Google Sign In process');
       // Sign in with Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         print('Google Sign In was cancelled by user');
         return null;
       }
+      print('Google Sign In successful. User: ${googleUser.email}');
 
       // Get auth details from Google
+      print('Getting Google authentication details');
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       if (googleAuth.idToken == null) {
+        print('No ID Token found in Google authentication');
         throw Exception('No ID Token found');
       }
+      print('Google authentication details obtained successfully');
 
       // Create Supabase credentials
+      print('Signing in to Supabase with Google ID token');
       final AuthResponse res = await supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: googleAuth.idToken!,
@@ -57,12 +63,15 @@ class SupabaseConfig {
       );
 
       if (res.user == null) {
+        print('Supabase sign in successful, but no user returned');
         throw Exception('No user returned from Supabase');
       }
+      print('Supabase sign in successful. User ID: ${res.user!.id}');
 
       return res.user;
     } catch (e) {
       print('Detailed sign in error: $e');
+      print('Stack trace: ${StackTrace.current}');
       throw Exception('Failed to sign in with Google: $e');
     }
   }

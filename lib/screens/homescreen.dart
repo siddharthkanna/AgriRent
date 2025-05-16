@@ -32,15 +32,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<List<Equipment>> _fetchAvailableEquipment() async {
     try {
-      final List<Equipment> allEquipment =
-          await EquipmentApi.getAllEquipmentData();
-      final List<Equipment> availableEquipment =
-          allEquipment.where((equipment) => equipment.isAvailable).toList();
+      final List<Equipment> availableEquipment = await EquipmentApi.getAvailableEquipment();
       return availableEquipment;
     } catch (error) {
       print('Error fetching available equipment: $error');
       throw error;
     }
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      equipmentData = _fetchAvailableEquipment();
+    });
   }
 
   @override
@@ -51,62 +54,102 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     String name = user?.userMetadata?['full_name'] ?? '';
     final locale = ref.watch(selectedLocaleProvider);
     final appLoc = AppLocalizations.of(context)!;
+    final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.topLeft,
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                children: [
-                  const SizedBox(height: 30),
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundImage: NetworkImage(dp),
+      backgroundColor: const Color(0xFFFAFAFA),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: CustomScrollView(
+          slivers: [
+            // App Bar
+            SliverAppBar(
+              expandedHeight: 120,
+              floating: true,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  padding: const EdgeInsets.fromLTRB(20, 50, 20, 0),
+                  child: Row(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 25,
+                          backgroundImage: NetworkImage(dp),
+                          backgroundColor: Colors.grey[100],
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              appLoc.welcome,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              name.split(" ")[0],
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.notifications_none_rounded),
+                        onPressed: () {},
+                        color: Colors.black87,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 14),
-                  Text(
-                    appLoc.welcome,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    name.split(" ")[0],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: OpenContainer(
+
+            // Search Bar
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 25),
+                child: OpenContainer(
                   closedElevation: 0,
-                  closedColor: Palette.white,
+                  closedColor: Colors.transparent,
                   transitionDuration: const Duration(milliseconds: 500),
                   openBuilder: (context, _) => const SearchScreen(),
                   closedBuilder: (context, VoidCallback openContainer) {
                     return Container(
+                      height: 50,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: Colors.grey[200],
-                        border: Border.all(
-                          color: Colors.black12,
-                          width: 0.5,
-                        ),
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey[200]!),
                       ),
                       child: Row(
                         children: [
-                          IconButton(
-                            icon: const Icon(Icons.search),
-                            onPressed: openContainer,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: Icon(Icons.search, color: Colors.grey[400], size: 22),
                           ),
                           Expanded(
                             child: TextField(
@@ -114,88 +157,202 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               onTap: openContainer,
                               decoration: InputDecoration(
                                 hintText: appLoc.searchForEquipment,
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 15,
+                                ),
                                 border: InputBorder.none,
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.filter_list),
-                            onPressed: () {
-                              // Implement filter functionality here
-                            },
-                          ),
                         ],
                       ),
                     );
-                  }),
+                  },
+                ),
+              ),
             ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, top: 10),
-              child: FutureBuilder<List<Equipment>>(
-                future: equipmentData,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SkeletonLoading(itemCount: 3);
-                  } else if (snapshot.hasError || !snapshot.hasData) {
-                    return const Text('Error loading equipment data');
-                  } else {
-                    List<Equipment> equipmentList = snapshot.data!;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+
+            // Categories Section
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      appLoc.equipmentCategories,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      height: 110,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: EquipmentCategories.getEquipmentCategories(context)
+                            .map((category) => Padding(
+                                  padding: const EdgeInsets.only(right: 15),
+                                  child: EquipmentCategoryCard(
+                                    displayTitle: category.localTitle,
+                                    title: category.englishTitle,
+                                    iconUrl: category.iconUrl,
+                                  ),
+                                ))
+                            .toList(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Popular Equipment Section
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 0),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           appLoc.popularEquipment,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            color: Colors.black87,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 150,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: equipmentList.length,
-                            itemBuilder: (context, index) {
-                              final equipment = equipmentList[index];
-                              return EquipmentCard(
-                                equipment: equipment,
-                              );
-                            },
+                        TextButton(
+                          onPressed: () {},
+                          child: Text(
+                            'View All',
+                            style: TextStyle(
+                              color: Palette.red,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Text(
-                          appLoc.equipmentCategories,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        SizedBox(
-                          height: 100,
-                          child: ListView(
-                            scrollDirection: Axis.horizontal,
-                            children:
-                                EquipmentCategories.getEquipmentCategories(
-                                        context)
-                                    .map((category) {
-                              return EquipmentCategoryCard(
-                                displayTitle: category.localTitle,
-                                title: category.englishTitle,
-                                iconUrl: category.iconUrl,
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        rentEquipmentSection(context),
                       ],
-                    );
-                  }
-                },
+                    ),
+                    const SizedBox(height: 15),
+                    FutureBuilder<List<Equipment>>(
+                      future: equipmentData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const SkeletonLoading(itemCount: 3);
+                        } else if (snapshot.hasError || !snapshot.hasData) {
+                          return _buildErrorState();
+                        } else {
+                          final equipmentList = snapshot.data!;
+                          if (equipmentList.isEmpty) {
+                            return _buildEmptyState();
+                          }
+                          return SizedBox(
+                            height: 220,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: equipmentList.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    right: index == equipmentList.length - 1 ? 0 : 15,
+                                  ),
+                                  child: EquipmentCard(
+                                    equipment: equipmentList[index],
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Rent Equipment Card
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Palette.red.withOpacity(0.95),
+                        Palette.red,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Row(
+                      children: [
+                       const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Have Equipment?',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Rent it out and earn money',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PostScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Palette.red,
+                            elevation: 0,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            'Post Now',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -204,47 +361,111 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
-  Widget rentEquipmentSection(BuildContext context) {
-    final appLoc = AppLocalizations.of(context)!;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Text(
-          'Have an Equipment?',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black, // Text color
-          ),
-        ),
-        const SizedBox(width: 25),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const  PostScreen(),
-              ),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Palette.red, // Text color
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8), // Decrease border radius
-            ),
-          ),
-          child: const Text(
-            'Post here',
+  Widget _buildErrorState() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.red[50],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.error_outline, size: 40, color: Colors.red[300]),
+          const SizedBox(height: 10),
+          const Text(
+            'Failed to load equipment',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white, // Text color
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
+          const SizedBox(height: 5),
+          Text(
+            'Pull to refresh and try again',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.grey[100]!,
+          width: 1,
         ),
-      ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey[100]!,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.agriculture_outlined,
+            size: 64,
+            color: Palette.red.withOpacity(0.8),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'No Equipment Listed Yet',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Be the first to list your equipment and start earning!',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PostScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add_circle_outline, size: 20),
+            label: const Text('List Your Equipment'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Palette.red,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 28,
+                vertical: 14,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

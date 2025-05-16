@@ -33,20 +33,26 @@ class Equipment {
 
   factory Equipment.fromJson(Map<String, dynamic> json) {
     return Equipment(
-      id :json['_id'],
+      id: json['id'],
       name: json['name'],
       description: json['description'],
       category: json['category'],
-      rentalPrice: json['rentalPrice'].toDouble(),
+      rentalPrice: (json['rental_price'] ?? json['rentalPrice']).toDouble(),
       location: json['location'],
-      images: List<String>.from(json['images']),
-      ownerId: json['ownerId'],
-      renterId: json['renterId'],
-      isAvailable: json['isAvailable'] ?? true,
+      images: json['images'] != null 
+          ? (json['images'] is List 
+              ? List<String>.from(json['images'])
+              : json['images'].toString().split(','))
+          : null,
+      ownerId: json['owner_id'] ?? json['ownerId'],
+      renterId: json['renter_id'] ?? json['renterId'],
+      isAvailable: json['is_available'] ?? json['isAvailable'] ?? true,
       condition: json['condition'],
-      availabilityDates: List<String>.from(json['availabilityDates']),
+      availabilityDates: json['availability_dates'] != null
+          ? List<String>.from(json['availability_dates'])
+          : null,
       features: json['features'],
-      deliveryMode: json['deliveryMode'],
+      deliveryMode: json['delivery_mode'] ?? json['deliveryMode'],
     );
   }
 
@@ -56,16 +62,50 @@ class Equipment {
       'name': name,
       'description': description,
       'category': category,
-      'rentalPrice': rentalPrice,
+      'rental_price': rentalPrice,
       'location': location,
       'images': images,
-      'ownerId': ownerId,
-      'renterId': renterId,
-      'isAvailable': isAvailable,
+      'owner_id': ownerId,
+      'renter_id': renterId,
+      'is_available': isAvailable,
       'condition': condition,
-      'availabilityDates': availabilityDates,
+      'availability_dates': availabilityDates,
       'features': features,
-      'deliveryMode': deliveryMode,
+      'delivery_mode': deliveryMode,
     };
+  }
+
+  Equipment copyWith({
+    String? id,
+    String? name,
+    String? description,
+    String? category,
+    double? rentalPrice,
+    String? location,
+    String? condition,
+    String? features,
+    String? deliveryMode,
+    List<String>? images,
+    bool? isAvailable,
+    String? ownerId,
+    String? renterId,
+    List<String>? availabilityDates,
+  }) {
+    return Equipment(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      category: category ?? this.category,
+      rentalPrice: rentalPrice ?? this.rentalPrice,
+      location: location ?? this.location,
+      condition: condition ?? this.condition,
+      features: features ?? this.features,
+      deliveryMode: deliveryMode ?? this.deliveryMode,
+      images: images ?? this.images,
+      isAvailable: isAvailable ?? this.isAvailable,
+      ownerId: ownerId ?? this.ownerId,
+      renterId: renterId ?? this.renterId,
+      availabilityDates: availabilityDates ?? this.availabilityDates,
+    );
   }
 }

@@ -8,10 +8,10 @@ final equipmentUrl = "$apiUrl/equipment";
 final loginUrl = "$userUrl/login";
 final getUserDataUrl = "$userUrl/getUser";
 
-//equipment
-final addEquipmentUrl = "$equipmentUrl/addEquipment";
-final deleteEquipmentUrl = "$equipmentUrl/deleteEquipment";
-final getEquipmentUrl = "$equipmentUrl/allEquipment";
-final postingHistoryUrl = "$equipmentUrl/postingHistory/";
-final rentalHistoryUrl = "$equipmentUrl/rentalHistory/";
-final rentEquipmentUrl = "$equipmentUrl/rentEquipment";
+//Equipment related urls
+final addEquipmentUrl = "$equipmentUrl/";
+final deleteEquipmentUrl = "$equipmentUrl/";
+final getAvailableEquipmentUrl = "$equipmentUrl/available";
+final postingHistoryUrl = "$equipmentUrl/postings";
+final rentalHistoryUrl = "$equipmentUrl/rentals";
+final rentEquipmentUrl = "$equipmentUrl/rent";

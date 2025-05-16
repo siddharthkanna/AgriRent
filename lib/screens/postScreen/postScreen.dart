@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:agrirent/components/image_picker.dart';
-import 'package:agrirent/components/textField.dart';
 import 'package:agrirent/models/EquipmentCategory.model.dart';
 import 'package:agrirent/models/equipment.model.dart';
 import 'package:agrirent/screens/postScreen/postScreenAdditional.dart';

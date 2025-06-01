@@ -2,29 +2,25 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
 import '../models/user.model.dart' as UserModel;
 
-final authProvider = Provider((ref) => AuthNotifier());
+final authProvider = StateNotifierProvider<AuthNotifier, UserModel.User?>((ref) => AuthNotifier());
 
-class AuthNotifier {
-  final _supabase = SupabaseConfig.supabase;
+class AuthNotifier extends StateNotifier<UserModel.User?> {
+  AuthNotifier() : super(null);
 
-  User? get user => _supabase.auth.currentUser;
-  String? get userId => user?.id;
-
-  UserModel.User? get userDetails {
-    if (user != null) {
-      return UserModel.User(
-        displayName: user!.userMetadata?['full_name'] ?? "",
-        email: user!.email ?? "",
-        googleId: user!.id,
-        photoURL: user!.userMetadata?['avatar_url'] ?? "",
-        mobileNumber: user!.phone ?? "",
-      );
+  void updateUserState(Map<String, dynamic> userData) {
+    print('Updating auth state with user data: $userData');
+    try {
+      final user = UserModel.User.fromJson(userData);
+      print('Created user object: ${user.id}, ${user.name}, ${user.email}');
+      state = user;
+      print('State updated. Current user ID: ${state?.id}');
+    } catch (e) {
+      print('Error updating user state: $e');
+      state = null;
     }
-    return null;
   }
 
   Future<void> signInWithGoogle(BuildContext context) async {
@@ -38,6 +34,7 @@ class AuthNotifier {
 
   Future<void> signOut() async {
     try {
+      state = null;
       await SupabaseConfig.signOut();
     } catch (e) {
       print('Failed to sign out. Please try again.: $e');

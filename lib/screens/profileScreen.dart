@@ -8,7 +8,6 @@ import 'package:agrirent/pages/profile/PostingHistory/PostingHistory.dart';
 import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/screens/auth.dart';
 import 'package:agrirent/theme/palette.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -34,6 +33,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with SingleTicker
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
     _controller.forward();
+    
   }
 
   @override
@@ -44,9 +44,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final authNotifier = ref.read(authProvider);
-    final user = authNotifier.user;
-    String dp = user?.userMetadata?['avatar_url'] ?? '';
+    final user = ref.read(authProvider);
+    String dp = user?.photoUrl ?? '';
     final appLoc = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Palette.white,
@@ -291,8 +290,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> with SingleTicker
         child: InkWell(
           borderRadius: BorderRadius.circular(16.0),
           onTap: () async {
-            final authNotifier = ref.read(authProvider);
-            await authNotifier.signOut();
+            await ref.read(authProvider.notifier).signOut();
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const SignUpScreen()),

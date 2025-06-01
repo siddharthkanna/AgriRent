@@ -4,37 +4,43 @@ import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/screens/pageview.dart';
 import 'package:flutter/material.dart';
 import '../models/user.model.dart';
+import '../config/supabase_config.dart';
 
 class UserApi {
   Future<void> signIn(BuildContext context, AuthNotifier auth) async {
     try {
-      print("Starting Google sign-in process");
-      await auth.signInWithGoogle(context);
-      final user = auth.user;
-      print("User: ${user?.email}");
-      print("Google sign-in completed. User: ${user?.id}");
+      print('Starting sign in process...');
+      
+      // Get Google auth data through Supabase
+      final supabaseUser = await SupabaseConfig.signInWithGoogle();
+      if (supabaseUser == null) {
+        throw Exception('Google authentication failed');
+      }
+      
+      print('Google auth completed. Email: ${supabaseUser.email}');
 
-      if (user != null) {
-        print("Creating User object with metadata");
-        final userData = User(
-          displayName: user.userMetadata?['full_name'] ?? '',
-          email: user.email ?? '',
-          googleId: user.id,
-          photoURL: user.userMetadata?['avatar_url'] ?? '',
-          mobileNumber: user.phone ?? '',
-        );
-        final userDataJson = userData.toJson();
-        print("User data prepared: $userDataJson");
+      // Send auth data to backend
+      final response = await dio.post(
+        loginUrl,
+        data: {
+          'email': supabaseUser.email,
+          'name': supabaseUser.userMetadata?['full_name'],
+          'photoUrl': supabaseUser.userMetadata?['avatar_url'],
+        },
+      );
 
-        print("Sending POST request to $loginUrl");
-        final response = await dio.post(
-          loginUrl,
-          data: userDataJson,
-        );
-        print("User email: ${auth.user?.email}");
-        print("Server response: ${response.data}");
+      print('Backend response: ${response.data}');
 
-        print("Navigating to PageViewScreen");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final userData = response.data['user'];
+        if (userData == null) {
+          throw Exception('No user data in response');
+        }
+
+        // Update state with backend user data
+        auth.updateUserState(userData);
+        
+        // Navigate to main screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -42,29 +48,43 @@ class UserApi {
           ),
         );
       } else {
-        print("User is null after Google sign-in");
+        throw Exception('Failed to sign in: ${response.statusMessage}');
       }
     } catch (e) {
-      print("Error during Google sign-in: $e");
-      print("Stack trace: ${StackTrace.current}");
+      print('Error in sign in: $e');
       throw e;
     }
   }
 
   Future<Map<String, dynamic>> getUserData(String userId) async {
     try {
-      final response = await dio.get(
-        '$getUserDataUrl/$userId',
-      );
+      final response = await dio.get('$userUrl/$userId');
 
       if (response.statusCode == 200) {
-        return Map<String, dynamic>.from(response.data);
+        final userData = response.data['user'] ?? response.data;
+        return userData;
       } else {
-        throw Exception('Failed to load user data');
+        throw Exception('Failed to fetch user data: ${response.statusMessage}');
       }
     } catch (e) {
-      print("Error fetching user data: $e");
-      throw Exception('Failed to load user data');
+      print('Error fetching user data: $e');
+      throw Exception('Failed to fetch user data: $e');
+    }
+  }
+
+  Future<void> updateUserData(String userId, Map<String, dynamic> userData) async {
+    try {
+      final response = await dio.put(
+        '$userUrl/$userId',
+        data: userData,
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to update user data: ${response.statusMessage}');
+      }
+    } catch (e) {
+      print('Error updating user data: $e');
+      throw Exception('Failed to update user data: $e');
     }
   }
 }

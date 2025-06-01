@@ -48,10 +48,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authNotifier = ref.read(authProvider);
-    final user = authNotifier.user;
-    String dp = user?.userMetadata?['avatar_url'] ?? '';
-    String name = user?.userMetadata?['full_name'] ?? '';
+    final user = ref.watch(authProvider);
+    print('HomeScreen rebuilding with user: ${user?.id}, ${user?.name}');
+    String dp = user?.photoUrl ?? '';
+    String name = user?.name ?? '';
     final locale = ref.watch(selectedLocaleProvider);
     final appLoc = AppLocalizations.of(context)!;
     final size = MediaQuery.of(context).size;
@@ -64,6 +64,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           slivers: [
             // App Bar
             SliverAppBar(
+              automaticallyImplyLeading: false,
               expandedHeight: 120,
               floating: true,
               backgroundColor: Colors.white,

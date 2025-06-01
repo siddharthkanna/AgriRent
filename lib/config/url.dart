@@ -6,7 +6,6 @@ final userUrl = "$apiUrl/user";
 final equipmentUrl = "$apiUrl/equipment";
 
 final loginUrl = "$userUrl/login";
-final getUserDataUrl = "$userUrl/getUser";
 
 //Equipment related urls
 final addEquipmentUrl = "$equipmentUrl/";

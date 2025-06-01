@@ -1,13 +1,14 @@
 import 'package:agrirent/api/equipment_api.dart';
 import 'package:agrirent/api/user_api.dart';
-import 'package:agrirent/config/chat/initiateChat.dart';
 import 'package:agrirent/constants/snackBar.dart';
 import 'package:agrirent/models/equipment.model.dart';
-import 'package:agrirent/screens/chat/chatScreen.dart';
+import 'package:agrirent/screens/chat/ChatScreen.dart';
+
 import 'package:agrirent/theme/palette.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:agrirent/providers/auth_provider.dart';
+import 'package:agrirent/providers/chat_provider.dart';
 
 class ProductDetailsPage extends ConsumerStatefulWidget {
   final Equipment equipment;
@@ -20,6 +21,65 @@ class ProductDetailsPage extends ConsumerStatefulWidget {
 }
 
 class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
+  Future<void> _navigateToChat() async {
+    final currentUser = ref.read(authProvider);
+    if (currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please sign in to chat with the owner'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final ownerId = widget.equipment.ownerId;
+    if (ownerId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Owner information not available'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final ownerData = await UserApi().getUserData(ownerId);
+      
+      if (!mounted) return;
+
+      // Create or get chat
+      final chatService = ref.read(chatServiceProvider);
+      final chatId = await chatService.getOrCreateChat(
+        currentUser.id,
+        ownerData['id'] ?? '',
+      );
+
+      if (!mounted) return;
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            chatId: chatId,
+            otherUserId: ownerData['id'] ?? '',
+            otherUserName: ownerData['name'] ?? '',
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Error navigating to chat: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Failed to start chat'),
+          backgroundColor: Colors.red[400],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     List<String> images = widget.equipment.images ?? [];
@@ -159,44 +219,29 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                   horizontal: 10,
                 ),
                 child: ElevatedButton(
-                  onPressed: () async {
-                    final ownerId = widget.equipment.ownerId;
-                    final chatId = await initiateChat(ownerId!);
-
-                    // Fetch user data for the owner
-                    final Map<String, dynamic> userData =
-                        await UserApi().getUserData(ownerId);
-
-                    // Check if user data is not null
-                    if (userData != null) {
-                      // Use null-aware operator to avoid a null exception
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatMessagesScreen(
-                            chatId: chatId,
-                            userPhotoUrl: userData['photoURL'] ?? '',
-                            userName: userData['displayName'] ?? '',
-                          ),
-                        ),
-                      );
-                    } else {
-                      CustomSnackBar.showError(
-                          context, 'Failed to initiate chat');
-                    }
-                  },
+                  onPressed: _navigateToChat,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.black,
                     backgroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.black),
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: Colors.black),
                     ),
-                    minimumSize: const Size(double.infinity, 49),
                   ),
-                  child: const Text(
-                    'Chat',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.chat_bubble_outline),
+                      SizedBox(width: 8),
+                      Text(
+                        'Chat with Owner',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -209,8 +254,11 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     String? equipmentId = widget.equipment.id;
-                    String renterId =
-                        FirebaseAuth.instance.currentUser?.uid ?? '';
+                    String? renterId = ref.read(authProvider)?.id;
+                    if (renterId == null) {
+                      CustomSnackBar.showError(context, 'You need to be logged in to rent equipment');
+                      return;
+                    }
                     EquipmentApi.rentEquipment(equipmentId!, renterId, context);
                   },
                   style: ElevatedButton.styleFrom(

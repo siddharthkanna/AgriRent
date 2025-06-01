@@ -1,4 +1,3 @@
-import 'package:agrirent/firebase_options.dart';
 import 'package:agrirent/providers/auth_provider.dart';
 import 'package:agrirent/providers/language_provider.dart';
 import 'package:agrirent/screens/onboarding.dart';
@@ -7,16 +6,18 @@ import 'package:agrirent/theme/palette.dart';
 import 'package:agrirent/config/supabase_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await dotenv.load();
   await SupabaseConfig.initialize();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     ProviderScope(
       child: MyApp(),
@@ -55,7 +56,7 @@ class MyApp extends ConsumerWidget {
       home: SafeArea(
         child: Consumer(
           builder: (context, ref, _) {
-            final user = ref.read(authProvider).user;
+            final user = ref.read(authProvider);
             return user != null
                 ? const PageViewScreen()
                 : const OnboardingScreen();

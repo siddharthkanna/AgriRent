@@ -9,16 +9,15 @@ class ProfileSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final authNotifier = ref.watch(authProvider);
-    final userDetails = authNotifier.userDetails;
+    final userDetails = ref.watch(authProvider);
 
     TextEditingController _nameController = TextEditingController();
     TextEditingController _mobileController = TextEditingController();
     String _email = userDetails?.email ?? '';
 
     // Fetch user's profile data
-    _nameController.text = userDetails?.displayName ?? '';
-    _mobileController.text = userDetails?.mobileNumber ?? '';
+    _nameController.text = userDetails?.name ?? '';
+    _mobileController.text = userDetails?.phoneNumber ?? '';
 
     void updateProfile() {
       String name = _nameController.text;

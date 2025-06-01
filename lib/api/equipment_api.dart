@@ -149,6 +149,7 @@ class EquipmentApi {
 
   static Future<void> createEquipment(BuildContext context, Equipment equipment) async {
     try {
+      print("Equipment: ${equipment.toJson()}");
       final session = SupabaseConfig.supabase.auth.currentSession;
       if (session == null) {
         throw Exception('Authentication required');

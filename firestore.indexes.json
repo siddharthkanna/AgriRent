@@ -1,0 +1,18 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "chats",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "participants",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "last_message_time",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ]
+} 

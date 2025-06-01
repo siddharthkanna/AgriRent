@@ -53,7 +53,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.read(authProvider);
     return Scaffold(
       body: Stack(
         children: [
@@ -154,7 +153,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with SingleTickerPr
                     FadeTransition(
                       opacity: _fadeAnimations[3],
                       child: FutureBuilder(
-                        future: UserApi().signIn(context, auth),
+                        future: UserApi().signIn(context, ref.read(authProvider.notifier)),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Center(
@@ -191,7 +190,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> with SingleTickerPr
                                       ),
                                     ),
                                     onPressed: () async {
-                                      await UserApi().signIn(context, auth);
+                                      await UserApi().signIn(context, ref.read(authProvider.notifier));
                                     },
                                     child: const Row(
                                       mainAxisAlignment: MainAxisAlignment.center,

@@ -87,7 +87,7 @@ class _PageViewScreenState extends State<PageViewScreen> {
                 KeepAlivePage(child: HomeScreen()),
                 KeepAlivePage(child: MarketScreen()),
                 KeepAlivePage(child: PostScreen()),
-                KeepAlivePage(child: ChatScreen()),
+                KeepAlivePage(child: InboxScreen()),
                 KeepAlivePage(child: ProfileScreen()),
               ],
             ),

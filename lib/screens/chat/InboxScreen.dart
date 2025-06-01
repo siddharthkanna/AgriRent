@@ -1,166 +1,221 @@
 import 'package:agrirent/api/user_api.dart';
-import 'package:agrirent/components/chat/chatTile.dart';
-import 'package:agrirent/config/chat/message_notifier.dart';
-import 'package:agrirent/constants/chatLoading.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:agrirent/models/chat.model.dart';
+import 'package:agrirent/services/firebase_chat_service.dart';
 import 'package:agrirent/providers/auth_provider.dart';
+import 'package:agrirent/screens/chat/ChatScreen.dart';
+import 'package:agrirent/providers/chat_provider.dart';
+import 'package:agrirent/theme/palette.dart';
+import 'package:shimmer/shimmer.dart';
 
-class ChatScreen extends ConsumerStatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+class InboxScreen extends ConsumerStatefulWidget {
+  const InboxScreen({Key? key}) : super(key: key);
 
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  ConsumerState<InboxScreen> createState() => _InboxScreenState();
 }
 
-class _ChatScreenState extends ConsumerState<ChatScreen> {
-  final CollectionReference _chatsCollection =
-      FirebaseFirestore.instance.collection('chats');
+class _InboxScreenState extends ConsumerState<InboxScreen> {
+  Stream<List<Chat>>? _chatsStream;
+  String? _currentUserId;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    _initializeChat();
+  }
 
-    MessageNotifier.messageStream.listen((_) {
-      setState(() {});
-    });
+  Future<void> _initializeChat() async {
+    final user = ref.read(authProvider);
+    if (user != null) {
+      _currentUserId = user.id;
+      final chatService = ref.read(chatServiceProvider);
+      await chatService.initialize();
+      
+      if (mounted) {
+        setState(() {
+          _chatsStream = chatService.getUserChats(_currentUserId!);
+          _isInitialized = true;
+        });
+      }
+      
+      print('Initialized chat for user: $_currentUserId');
+    } else {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final appLoc = AppLocalizations.of(context)!;
-    final authNotifier = ref.read(authProvider);
-    final currentUserID = authNotifier.userId;
-
-    if (currentUserID == null) {
-      return SafeArea(
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(
-              appLoc.chats,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-          ),
-          body: const Center(
-            child: Text('User not authenticated'),
-          ),
+    final user = ref.watch(authProvider);
+    
+    if (!_isInitialized) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
       );
+    }
+
+    if (user == null) {
+      return _buildSignInPrompt();
     }
 
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 6, top: 6),
-          child: Text(
-            appLoc.chats,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+        title: const Text(
+          'Messages',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
           ),
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: Colors.grey[200],
+            height: 1.0,
+          ),
+        ),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _chatsCollection
-            .where('participants', arrayContains: currentUserID)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: _chatsStream == null
+          ? _buildEmptyState()
+          : StreamBuilder<List<Chat>>(
+              stream: _chatsStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return _buildLoadingState();
+                }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+                if (snapshot.hasError) {
+                  return _buildErrorState(snapshot.error.toString());
+                }
 
-          final chatData = snapshot.data!.docs;
+                final chats = snapshot.data ?? [];
+                
+                if (chats.isEmpty) {
+                  return _buildEmptyState();
+                }
 
-          if (chatData.isEmpty) {
-            return const Center(
-              child: Text(
-                'Your chats appear here',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            );
-          }
+                return ListView.builder(
+                  itemCount: chats.length,
+                  itemBuilder: (context, index) {
+                    final chat = chats[index];
+                    final otherUserId = chat.participants
+                        .firstWhere((id) => id != _currentUserId);
 
-          return ListView.builder(
-            itemCount: chatData.length,
-            itemBuilder: (context, index) {
-              final chat = chatData[index].data() as Map<String, dynamic>;
-              final chatId = chatData[index].id;
-              final receiverID = (chat['participants'] as List)
-                  .firstWhere((id) => id != currentUserID);
+                    return FutureBuilder<String>(
+                      future: _getUserName(otherUserId),
+                      builder: (context, snapshot) {
+                        final userName = snapshot.data ?? 'Loading...';
+                        
+                        return _buildChatListItem(
+                          chat: chat,
+                          userName: userName,
+                          lastMessageTime: chat.lastMessageTime,
+                          onTap: () => _navigateToChat(chat.id, otherUserId, userName),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+    );
+  }
+  Future<String> _getUserName(String userId) async {
+    final user = await UserApi().getUserData(userId);
+    return user['name'] ?? 'Loading...';
+  }
 
-              return FutureBuilder<Map<String, dynamic>>(
-                // Fetch user data using the user API
-                future: UserApi().getUserData(receiverID),
-                builder: (context, userSnapshot) {
-                  if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return SkeletonChatLoading();
-                  }
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
 
-                  final user = userSnapshot.data;
+    if (difference.inDays == 0) {
+      return '${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
+  }
 
-                  // Check if 'user' is not null before accessing data
-                  final userName = user?['displayName'] ?? 'Default Name';
-                  final String firstName = userName.split(' ')[0];
-                  final userPhotoUrl = user?['photoURL'] ?? '';
-
-                  return FutureBuilder<QuerySnapshot>(
-                    // Fetch last message using the correct reference
-                    future: _chatsCollection
-                        .doc(chatId)
-                        .collection('messages')
-                        .orderBy('timestamp', descending: true)
-                        .limit(1)
-                        .get(),
-                    builder: (context, messageSnapshot) {
-                      if (messageSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return SkeletonChatLoading();
-                      }
-
-                      final List<DocumentSnapshot> messageDocs =
-                          messageSnapshot.data!.docs;
-                      final List<Map<String, dynamic>> messages = messageDocs
-                          .map((doc) => doc.data() as Map<String, dynamic>)
-                          .toList();
-
-                      final lastMessage = messages.isNotEmpty
-                          ? messages.first['text'].toString()
-                          : 'No messages';
-
-                      return ChatTile(
-                        chatId: chatId,
-                        name: firstName,
-                        lastMessage: lastMessage,
-                        userPhotoUrl: userPhotoUrl,
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          );
-        },
+  void _navigateToChat(String chatId, String otherUserId, String otherUserName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(
+          chatId: chatId,
+          otherUserId: otherUserId,
+          otherUserName: otherUserName,
+        ),
       ),
+    );
+  }
+
+  Widget _buildSignInPrompt() {
+    return const Center(child: Text('Please sign in to view messages'));
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(child: Text('No messages yet'));
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  Widget _buildErrorState(String error) {
+    return Center(child: Text('Error: $error'));
+  }
+
+  Widget _buildChatListItem({
+    required Chat chat,
+    required String userName,
+    required DateTime lastMessageTime,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: const CircleAvatar(
+        backgroundColor: Palette.primary,
+        child: Icon(Icons.person, color: Colors.white),
+      ),
+      title: Text(
+        userName,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            chat.lastMessage ?? 'No messages yet',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            _formatDate(lastMessageTime),
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+      onTap: onTap,
     );
   }
 }
